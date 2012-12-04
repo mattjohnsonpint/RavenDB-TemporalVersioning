@@ -93,10 +93,11 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         private static void ActivateBundle(this IDocumentStore documentStore, string databaseName, string bundleName)
         {
-            using (var sesion = documentStore.OpenSession(databaseName))
+            using (var sesion = documentStore.OpenSession())
             {
                 var databaseDocument = sesion.Load<DatabaseDocument>("Raven/Databases/" + databaseName);
-                var activeBundles = databaseDocument.Settings[Constants.ActiveBundles];
+                var settings = databaseDocument.Settings;
+                var activeBundles = settings.ContainsKey(Constants.ActiveBundles) ? settings[Constants.ActiveBundles] : null;
                 if (string.IsNullOrEmpty(activeBundles))
                     activeBundles = bundleName;
                 else
@@ -105,7 +106,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
                         return;
                     activeBundles += "," + bundleName;
                 }
-                databaseDocument.Settings[Constants.ActiveBundles] = activeBundles;
+                settings[Constants.ActiveBundles] = activeBundles;
 
                 sesion.SaveChanges();
             }
