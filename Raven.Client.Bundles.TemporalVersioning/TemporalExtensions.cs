@@ -54,21 +54,11 @@ namespace Raven.Client.Bundles.TemporalVersioning
                 .ToArray();
         }
 
-        public static void SetEffectiveDate(this IDocumentSession session, object entity, DateTimeOffset effectiveDate, bool onHeaderInsteadOfMetadata = false)
+        public static void PrepareNewRevision(this IDocumentSession session, object entity, DateTimeOffset effectiveDate)
         {
-            if (onHeaderInsteadOfMetadata)
-            {
-                var key = session.Advanced.GetDocumentId(entity);
-                var headers = ((DocumentSession) session).DatabaseCommands.OperationsHeaders;
-                var header = String.Format("{0}-{1}", TemporalConstants.EffectiveDateHeader, key.Replace('/', '-'));
-                headers[header] = effectiveDate.ToString("o");
-            }
-            else
-            {
-                var temporal = session.Advanced.GetTemporalMetadataFor(entity);
-                temporal.Status = TemporalStatus.New;
-                temporal.EffectiveStart = effectiveDate;
-            }
+            var temporal = session.Advanced.GetTemporalMetadataFor(entity);
+            temporal.Status = TemporalStatus.New;
+            temporal.EffectiveStart = effectiveDate;
         }
 
         public static ISyncTemporalSessionOperation Effective(this IDocumentSession session, DateTimeOffset effectiveDate)

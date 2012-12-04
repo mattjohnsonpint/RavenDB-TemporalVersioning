@@ -36,16 +36,16 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 using (var session = documentStore.OpenSession())
                 {
                     var employee1 = session.Load<Employee>("employees/1");
-                    var employee2 = session.Load<Employee>("employees/2");
-                    var employee3 = session.Load<Employee>("employees/3");
-
+                    session.PrepareNewRevision(employee1, effectiveDate2);
                     employee1.PayRate = 40;
-                    employee2.PayRate = 50;
-                    employee3.PayRate = 60;
 
-                    session.SetEffectiveDate(employee1, effectiveDate2);
-                    session.SetEffectiveDate(employee2, effectiveDate3);
-                    session.SetEffectiveDate(employee3, effectiveDate3);
+                    var employee2 = session.Load<Employee>("employees/2");
+                    session.PrepareNewRevision(employee2, effectiveDate3);
+                    employee2.PayRate = 50;
+
+                    var employee3 = session.Load<Employee>("employees/3");
+                    session.PrepareNewRevision(employee3, effectiveDate3);
+                    employee3.PayRate = 60;
 
                     session.SaveChanges();
                 }

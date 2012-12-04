@@ -94,25 +94,25 @@ namespace Raven.Client.Bundles.TemporalVersioning
         public void Store(object entity, Guid etag)
         {
             _session.Store(entity, etag);
-            _session.SetEffectiveDate(entity, _effectiveDate);
+            _session.PrepareNewRevision(entity, _effectiveDate);
         }
 
         public void Store(object entity, Guid etag, string id)
         {
             _session.Store(entity, etag, id);
-            _session.SetEffectiveDate(id, _effectiveDate);
+            _session.PrepareNewRevision(id, _effectiveDate);
         }
 
         public void Store(dynamic entity)
         {
             _session.Store(entity);
-            _session.SetEffectiveDate((object) entity, _effectiveDate);
+            _session.PrepareNewRevision((object) entity, _effectiveDate);
         }
 
         public void Store(dynamic entity, string id)
         {
             _session.Store(entity, id);
-            _session.SetEffectiveDate(id, _effectiveDate);
+            _session.PrepareNewRevision(id, _effectiveDate);
         }
 
         #endregion
@@ -121,7 +121,12 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         public void Delete<T>(T entity)
         {
-            _session.SetEffectiveDate(entity, _effectiveDate, true);
+            // Deletions have to send the effective date in a header keyed by the document id
+            var key = _session.Advanced.GetDocumentId(entity);
+            var headers = ((DocumentSession) _session).DatabaseCommands.OperationsHeaders;
+            var header = String.Format("{0}-{1}", TemporalConstants.EffectiveDateHeader, key.Replace('/', '-'));
+            headers[header] = _effectiveDate.ToString("o");
+
             _session.Delete(entity);
         }
 

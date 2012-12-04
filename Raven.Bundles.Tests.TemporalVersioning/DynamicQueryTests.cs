@@ -29,8 +29,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 using (var session = documentStore.OpenSession())
                 {
                     var employee = session.Load<Employee>(id);
+                    session.PrepareNewRevision(employee, effectiveDate2);
                     employee.PayRate = 20;
-                    session.SetEffectiveDate(employee, effectiveDate2);
+                    
                     session.SaveChanges();
                 }
 
