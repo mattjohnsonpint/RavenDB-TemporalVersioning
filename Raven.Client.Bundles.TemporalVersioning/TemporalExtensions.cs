@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Raven.Abstractions.Data;
 using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
 
@@ -8,33 +9,37 @@ namespace Raven.Client.Bundles.TemporalVersioning
     public static class TemporalExtensions
     {
         /// <summary>
-        /// Enables or disables temporal versioning for all documents that aren't configured separately.
+        /// Configures temporal versioning for all documents that aren't configured separately.
         /// </summary>
-        public static void SetTemporalVersioningEnabled(this IDocumentStore documentStore, bool enabled)
+        public static void ConfigureTemporalVersioningDefaults(this IDocumentSession session, bool enabled)
         {
-            documentStore.SetTemporalVersioningEnabled(enabled, "DefaultConfiguration");
+            session.ConfigureTemporalVersioning(enabled, "DefaultConfiguration");
         }
 
         /// <summary>
-        /// Enables or disables temporal versioning for an individual document type.
+        /// Configures temporal versioning for an individual document type.
         /// </summary>
-        public static void SetTemporalVersioningEnabled<T>(this IDocumentStore documentStore, bool enabled)
+        public static void ConfigureTemporalVersioning<T>(this IDocumentSession session, bool enabled)
         {
-            var entityName = documentStore.Conventions.GetTypeTagName(typeof(T));
-            documentStore.SetTemporalVersioningEnabled(enabled, entityName);
+            session.ConfigureTemporalVersioning(enabled, typeof(T));
         }
 
-        private static void SetTemporalVersioningEnabled(this IDocumentStore documentStore, bool enabled, string entityName)
+        /// <summary>
+        /// Configures temporal versioning for an individual document type.
+        /// </summary>
+        public static void ConfigureTemporalVersioning(this IDocumentSession session, bool enabled, Type documentType)
         {
-            using (var session = documentStore.OpenSession())
-            {
-                session.Store(new
+            var entityName = session.Advanced.DocumentStore.Conventions.GetTypeTagName(documentType);
+            session.ConfigureTemporalVersioning(enabled, entityName);
+        }
+
+        private static void ConfigureTemporalVersioning(this IDocumentSession session, bool enabled, string entityName)
+        {
+            session.Store(new
                 {
                     Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
                     Enabled = enabled
                 });
-                session.SaveChanges();
-            }
         }
 
         public static T[] GetTemporalRevisionsFor<T>(this ISyncAdvancedSessionOperation session, string id, int start, int pageSize)
@@ -79,6 +84,31 @@ namespace Raven.Client.Bundles.TemporalVersioning
         public static TemporalMetadata GetTemporalMetadataFor<T>(this ISyncAdvancedSessionOperation session, T instance)
         {
             return session.GetMetadataFor(instance).GetTemporalMetadata();
+        }
+
+        public static void ActivateTemporalVersioningBundle(this IDocumentStore documentStore, string databaseName = null)
+        {
+            documentStore.ActivateBundle(databaseName, TemporalConstants.BundleName);
+        }
+
+        private static void ActivateBundle(this IDocumentStore documentStore, string databaseName, string bundleName)
+        {
+            using (var sesion = documentStore.OpenSession(databaseName))
+            {
+                var databaseDocument = sesion.Load<DatabaseDocument>("Raven/Databases/" + databaseName);
+                var activeBundles = databaseDocument.Settings[Constants.ActiveBundles];
+                if (string.IsNullOrEmpty(activeBundles))
+                    activeBundles = bundleName;
+                else
+                {
+                    if (activeBundles.Split(',').Contains(bundleName, StringComparer.OrdinalIgnoreCase))
+                        return;
+                    activeBundles += "," + bundleName;
+                }
+                databaseDocument.Settings[Constants.ActiveBundles] = activeBundles;
+
+                sesion.SaveChanges();
+            }
         }
     }
 }

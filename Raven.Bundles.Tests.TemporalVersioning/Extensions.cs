@@ -15,8 +15,12 @@ namespace Raven.Bundles.Tests.TemporalVersioning
             documentStore.Initialize();
 
             // Enable temporal versioning by default
-            documentStore.SetTemporalVersioningEnabled(true);
-            
+            using (var session = documentStore.OpenSession())
+            {
+                session.ConfigureTemporalVersioningDefaults(true);
+                session.SaveChanges();
+            }
+
             return documentStore;
         }
     }
