@@ -52,7 +52,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Equal(id, current.Id);
                     Assert.Equal(10, current.PayRate);
 
@@ -93,7 +93,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 using (var session = documentStore.OpenSession())
                 {
                     // there should be no current revision
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Null(current);
                     
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
@@ -129,7 +129,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results - there shouldn't be a current doc yet.
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Null(current);
                 }
 
@@ -139,7 +139,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results again - now we should have the current doc.
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.NotNull(current);
                 }
             }
@@ -163,7 +163,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.EffectiveNow().Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 20;
                     session.SetEffectiveDate(employee, effectiveDate2);
                     session.SaveChanges();
@@ -172,7 +172,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Equal(id, current.Id);
                     Assert.Equal(20, current.PayRate);
 
@@ -221,7 +221,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = effectiveDate1.AddSeconds(2);
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.EffectiveNow().Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 20;
                     session.SetEffectiveDate(employee, effectiveDate2);
                     session.SaveChanges();
@@ -230,7 +230,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Equal(id, current.Id);
                     Assert.Equal(10, current.PayRate);
 
@@ -245,7 +245,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Equal(id, current.Id);
                     Assert.Equal(20, current.PayRate);
 
@@ -274,7 +274,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.EffectiveNow().Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 20;
                     session.SetEffectiveDate(employee, effectiveDate2);
                     session.SaveChanges();
@@ -284,7 +284,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate3 = new DateTimeOffset(new DateTime(2012, 3, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.EffectiveNow().Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 30;
                     session.SetEffectiveDate(employee, effectiveDate3);
                     session.SaveChanges();
@@ -293,7 +293,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Equal(30, current.PayRate);
 
                     var currentTemporal = session.Advanced.GetTemporalMetadataFor(current);
@@ -349,7 +349,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.EffectiveNow().Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 20;
                     session.SetEffectiveDate(employee, effectiveDate2);
                     session.SaveChanges();
@@ -359,7 +359,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate3 = new DateTimeOffset(new DateTime(2012, 1, 15));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.EffectiveNow().Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 30;
                     session.SetEffectiveDate(employee, effectiveDate3);
                     session.SaveChanges();
@@ -368,7 +368,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Equal(30, current.PayRate);
 
                     var currentTemporal = session.Advanced.GetTemporalMetadataFor(current);

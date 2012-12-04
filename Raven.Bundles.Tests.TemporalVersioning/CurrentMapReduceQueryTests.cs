@@ -35,9 +35,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Make some changes
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee1 = session.Effective(effectiveDate2).Load<Employee>("employees/1");
-                    var employee2 = session.Effective(effectiveDate2).Load<Employee>("employees/2");
-                    var employee3 = session.Effective(effectiveDate2).Load<Employee>("employees/3");
+                    var employee1 = session.Load<Employee>("employees/1");
+                    var employee2 = session.Load<Employee>("employees/2");
+                    var employee3 = session.Load<Employee>("employees/3");
 
                     employee1.PayRate = 40;
                     employee2.PayRate = 50;
@@ -53,7 +53,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Delete a document
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee2 = session.Effective(effectiveDate4).Load<Employee>("employees/2");
+                    var employee2 = session.Load<Employee>("employees/2");
                     session.Effective(effectiveDate4).Delete(employee2);
                     session.SaveChanges();
                 }

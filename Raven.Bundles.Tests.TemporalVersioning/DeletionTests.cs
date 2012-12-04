@@ -27,7 +27,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     session.Effective(effectiveDate2).Delete(employee);
                     session.SaveChanges();
                 }
@@ -35,7 +35,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var current = session.EffectiveNow().Load<Employee>(id);
+                    var current = session.Load<Employee>(id);
                     Assert.Null(current);
 
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);

@@ -27,7 +27,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 20;
                     session.SetEffectiveDate(employee, effectiveDate2);
                     session.SaveChanges();
@@ -65,17 +65,17 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 20;
                     session.SetEffectiveDate(employee, effectiveDate2);
                     session.SaveChanges();
                 }
 
-                // Load non-current data and make some future changes
+                // Make some future changes
                 var effectiveDate3 = new DateTimeOffset(new DateTime(2012, 3, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Effective(effectiveDate1).Load<Employee>(id);
+                    var employee = session.Load<Employee>(id);
                     employee.PayRate = 30;
                     session.SetEffectiveDate(employee, effectiveDate3);
                     session.SaveChanges();
@@ -84,8 +84,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Check the results at the end
                 using (var session = documentStore.OpenSession())
                 {
-                    //var revisions = session.Advanced.GetTemporalRevisionIdsFor(id, 0, 10);
-
                     var employee = session.Effective(effectiveDate3).Load<Employee>(id);
                     Assert.Equal(id, employee.Id);
                     Assert.Equal(30, employee.PayRate);
