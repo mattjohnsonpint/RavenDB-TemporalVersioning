@@ -73,15 +73,6 @@ namespace Raven.Client.Bundles.TemporalVersioning
             where TIndexCreator : AbstractIndexCreationTask, new();
 
         /// <summary>
-        /// Queries the index specified by <typeparamref name="TIndexCreator"/> using Linq.
-        /// </summary>
-        /// <typeparam name="T">The result of the query</typeparam>
-        /// <typeparam name="TIndexCreator">The type of the index creator.</typeparam>
-        /// <returns></returns>
-        IRavenQueryable<T> TemporalQuery<T, TIndexCreator>()
-            where TIndexCreator : AbstractIndexCreationTask, new();
-        
-        /// <summary>
         /// Begin a load while including the specified path 
         /// </summary>
         /// <param name="path">The path.</param>

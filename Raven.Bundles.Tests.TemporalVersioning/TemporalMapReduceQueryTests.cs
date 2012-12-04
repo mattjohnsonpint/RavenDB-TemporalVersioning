@@ -61,9 +61,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Query current data and check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var result = session.EffectiveNow()
-                                        .TemporalQuery<Employees_TemporalCount.Result, Employees_TemporalCount>()
+                    var result = session.Query<Employees_TemporalCount.Result, Employees_TemporalCount>()
                                         .Customize(x => x.WaitForNonStaleResults())
+                                        .Where(x => x.Effective <= DateTime.UtcNow)
                                         .ToList().Last();
 
                     Assert.Equal(2, result.Count);
@@ -72,9 +72,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Query non-current data and check the results at date 1
                 using (var session = documentStore.OpenSession())
                 {
-                    var result = session.Effective(effectiveDate1)
-                                        .TemporalQuery<Employees_TemporalCount.Result, Employees_TemporalCount>()
+                    var result = session.Query<Employees_TemporalCount.Result, Employees_TemporalCount>()
                                         .Customize(x => x.WaitForNonStaleResults())
+                                        .Where(x => x.Effective <= effectiveDate1)
                                         .ToList().Last();
 
                     Assert.Equal(2, result.Count);
@@ -83,9 +83,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Query non-current data and check the results at date 2
                 using (var session = documentStore.OpenSession())
                 {
-                    var result = session.Effective(effectiveDate2)
-                                        .TemporalQuery<Employees_TemporalCount.Result, Employees_TemporalCount>()
+                    var result = session.Query<Employees_TemporalCount.Result, Employees_TemporalCount>()
                                         .Customize(x => x.WaitForNonStaleResults())
+                                        .Where(x => x.Effective <= effectiveDate2)
                                         .ToList().Last();
 
                     Assert.Equal(3, result.Count);
@@ -94,9 +94,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Query non-current data and check the results at date 3
                 using (var session = documentStore.OpenSession())
                 {
-                    var result = session.Effective(effectiveDate3)
-                                        .TemporalQuery<Employees_TemporalCount.Result, Employees_TemporalCount>()
+                    var result = session.Query<Employees_TemporalCount.Result, Employees_TemporalCount>()
                                         .Customize(x => x.WaitForNonStaleResults())
+                                        .Where(x => x.Effective <= effectiveDate3)
                                         .ToList().Last();
 
                     Assert.Equal(3, result.Count);
@@ -105,9 +105,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Query non-current data and check the results at date 4
                 using (var session = documentStore.OpenSession())
                 {
-                    var result = session.Effective(effectiveDate4)
-                                        .TemporalQuery<Employees_TemporalCount.Result, Employees_TemporalCount>()
+                    var result = session.Query<Employees_TemporalCount.Result, Employees_TemporalCount>()
                                         .Customize(x => x.WaitForNonStaleResults())
+                                        .Where(x => x.Effective <= effectiveDate4)
                                         .ToList().Last();
 
                     Assert.Equal(2, result.Count);

@@ -68,19 +68,6 @@ namespace Raven.Client.Bundles.TemporalVersioning
             return _session.Query<T, TIndexCreator>();
         }
 
-        public IRavenQueryable<T> TemporalQuery<T, TIndexCreator>() where TIndexCreator : AbstractIndexCreationTask, new()
-        {
-            return _session.Query<T, TIndexCreator>()
-                           .As<TemporalQueryFilter>()
-                           .Where(x => x.Effective <= _effectiveDate)
-                           .AsProjection<T>();
-        }
-
-        public class TemporalQueryFilter
-        {
-            public DateTimeOffset Effective { get; set; }
-        }
-
         #endregion
 
         #region Include
