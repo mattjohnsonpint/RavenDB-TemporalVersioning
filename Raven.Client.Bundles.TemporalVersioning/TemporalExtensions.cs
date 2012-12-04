@@ -54,6 +54,11 @@ namespace Raven.Client.Bundles.TemporalVersioning
                 .ToArray();
         }
 
+        public static void PrepareNewRevision(this IDocumentSession session, object entity)
+        {
+            session.PrepareNewRevision(entity, DateTimeOffset.UtcNow);
+        }
+
         public static void PrepareNewRevision(this IDocumentSession session, object entity, DateTimeOffset effectiveDate)
         {
             var temporal = session.Advanced.GetTemporalMetadataFor(entity);
