@@ -35,7 +35,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         private static void ConfigureTemporalVersioning(this IDocumentSession session, bool enabled, string entityName)
         {
-            session.Store(new
+            session.Store(new TemporalVersioningConfiguration
                 {
                     Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
                     Enabled = enabled
@@ -93,9 +93,9 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         private static void ActivateBundle(this IDocumentStore documentStore, string databaseName, string bundleName)
         {
-            using (var sesion = documentStore.OpenSession())
+            using (var session = documentStore.OpenSession())
             {
-                var databaseDocument = sesion.Load<DatabaseDocument>("Raven/Databases/" + databaseName);
+                var databaseDocument = session.Load<DatabaseDocument>("Raven/Databases/" + databaseName);
                 var settings = databaseDocument.Settings;
                 var activeBundles = settings.ContainsKey(Constants.ActiveBundles) ? settings[Constants.ActiveBundles] : null;
                 if (string.IsNullOrEmpty(activeBundles))
@@ -108,7 +108,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
                 }
                 settings[Constants.ActiveBundles] = activeBundles;
 
-                sesion.SaveChanges();
+                session.SaveChanges();
             }
         }
     }

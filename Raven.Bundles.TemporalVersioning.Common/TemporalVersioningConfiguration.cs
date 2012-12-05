@@ -1,4 +1,4 @@
-﻿namespace Raven.Bundles.TemporalVersioning.Data
+﻿namespace Raven.Bundles.TemporalVersioning.Common
 {
     public class TemporalVersioningConfiguration
     {

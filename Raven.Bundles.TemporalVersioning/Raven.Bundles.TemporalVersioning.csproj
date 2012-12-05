@@ -94,7 +94,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\TemporalVersioningConfiguration.cs" />
     <Compile Include="TemporalActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TemporalRevisionsIndex.cs" />

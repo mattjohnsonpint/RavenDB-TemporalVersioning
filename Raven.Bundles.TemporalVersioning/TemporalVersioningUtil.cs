@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Raven.Abstractions.Data;
 using Raven.Abstractions.Extensions;
 using Raven.Bundles.TemporalVersioning.Common;
-using Raven.Bundles.TemporalVersioning.Data;
 using Raven.Database;
 using Raven.Json.Linq;
 
