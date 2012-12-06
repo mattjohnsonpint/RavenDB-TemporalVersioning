@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Raven.Abstractions;
 using Raven.Abstractions.Data;
+using Raven.Abstractions.Logging;
 using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Database;
 using Raven.Json.Linq;
@@ -9,8 +10,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 {
     internal static class SharedTriggerActions
     {
+        private static readonly ILog Log = LogManager.GetCurrentClassLogger();
+
         public static int PutRevision(this DocumentDatabase database, string key, RavenJObject document, RavenJObject metadata, TransactionInformation transactionInformation, bool deleted = false)
         {
+            Log.Debug("Putting new temporal revision for {0}", key);
+
             // The revision is a copy of the document.
             var revisionDocument = new RavenJObject(document);
             var revisionMetadata = new RavenJObject(metadata);

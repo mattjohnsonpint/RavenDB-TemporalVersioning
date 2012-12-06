@@ -3,6 +3,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
 using Raven.Abstractions.Data;
+using Raven.Abstractions.Logging;
 using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Database.Plugins;
 using Raven.Database.Server;
@@ -13,6 +14,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
     [ExportMetadata("Bundle", TemporalConstants.BundleName)]
     public class TemporalVersioningLoadTrigger : AbstractReadTrigger
     {
+        private readonly ILog _log = LogManager.GetCurrentClassLogger();
+
         private readonly ThreadLocal<string> _effectiveVersionKey = new ThreadLocal<string>();
 
         public override ReadVetoResult AllowRead(string key, RavenJObject metadata, ReadOperation operation, TransactionInformation transactionInformation)
@@ -45,7 +48,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             // If the current document is already in range, just return it
             if (temporal.EffectiveStart <= effectiveDate && effectiveDate < temporal.EffectiveUntil)
                 return ReadVetoResult.Allowed;
-            
+
             // Now we have to go find the active revision.
             using (Database.DisableAllTriggersForCurrentThread())
             {
@@ -72,6 +75,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             var evKey = _effectiveVersionKey.Value;
             if (evKey == null)
                 return;
+
+            _log.Debug("Temporally loading {0} instead of {1}", evKey, key);
 
             using (Database.DisableAllTriggersForCurrentThread())
             {

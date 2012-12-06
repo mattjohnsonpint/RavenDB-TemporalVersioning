@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using System.Linq;
 using System.Threading;
 using Raven.Abstractions;
 using Raven.Abstractions.Data;
