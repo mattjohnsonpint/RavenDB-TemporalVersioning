@@ -5,7 +5,7 @@ This a custom bundle for RavenDB.  It requires RavenDB version 2.0.2170 or highe
 
 It allows you to make changes to a document that are effective at a particular point in time.  Often, this will be "now", but it can easily be a past or future date.  All version history is maintained.
 
-The difference between this and Raven's official "Versioning Bundle" is that past changes are not hidden from you.  You can load, store, delete, or query at any date.  You can query on past data.  You can even build Temporal Map/Reduce Indexes, that allow you to aggregate data at specific points in time.
+The difference between this and Raven's official "Versioning Bundle" is that past changes are not hidden from you.  You can load, store, delete, or query at any date.  You can query on past data.  You can even build Temporal Map/Reduce Indexes that allow you to aggregate data at specific points in time.
 
 
 ### Manual Installation
@@ -78,10 +78,10 @@ Every date in the Temporal Versioning bundle is a `DateTimeOffset`.  This ensure
 It doesn't matter what offset you provide, as things will be converted to UTC where needed.  But you should be aware of a few important quirks:
 
 - You can pass a `DateTime` in to any `DateTimeOffset` field.  There is a one-way, implicit conversion.  But be aware of the `.Kind` property of your `DateTime` values.
-- If you pass a `DateTime` with `Local` or `Unspecified` kind, the timezone of the computer where the code is running will be used and the `DateTime` value can change! `Local` comes from `DateTime.Now()` while `Unspecified` comes from `new DateTime()` or `DateTime.Parse()` when you don't explicitly set the `kind` parameter.
+- If you pass a `DateTime` with `Local` or `Unspecified` kind, the time zone of the computer where the code is running will be used and the `DateTime` value can change! `Local` comes from `DateTime.Now()` while `Unspecified` comes from `new DateTime()` or `DateTime.Parse()` when you don't explicitly set the `kind` parameter.
 - `Utc` kinds are safer.  These come from methods such as `DateTime.UtcNow()`.
-- It is much easier just to pass a `DateTimeOffset` instance.  They are unambiguous.
-- Be aware that two `DateTimeOffset` values are equal if their UTC converted times are equal.  For example, `2012-01-01T00:00:00+00:00` and `2012-01-01T02:00:00+02:00` refer to the same instantaneous moment, and are therefore equivalent.  You can use an offset that is contextually relavent for your own purposes without regard to conversion.  If you have no context, or just don't care, then use UTC.
+- It is much easier just to pass a `DateTimeOffset` instance.  They are unambiguousrelavent 
+- Be aware that two `DateTimeOffset` values are equal if their UTC converted times are equal.  For example, `2012-01-01T00:00:00+00:00` and `2012-01-01T02:00:00+02:00` refer to the same instantaneous moment, and are therefore equivalent.  You can use an offset that is contextually relevant for your own purposes without regard to conversion.  If you have no context, or just don't care, then use UTC.
 - RavenDB stores all `DateTime` and `DateTimeOffset` value in ISO8601 format.  This is available in .Net via  the round trip string formatter, `.ToString("o")`.
 - A `DateTimeOffset` in a Raven document or metadata will maintain its offset, but when used in an index map, it will be converted to a UTC `DateTime`.  This is important and desired behavior such that sorting and filtering still honors the equality behavior described earlier.
 
@@ -152,9 +152,11 @@ Normally, you would load a document, modify it, and save changes.  This will thr
     foo.Bar = 123;
     session.SaveChanges();
 
-**Imporant** - Be careful with edits at past or future dates.  Notice how I specify the effective date both when loading and preparing the revision.  It will still work if you skip the date when loading, but you may be copying other *current* data to your new date, and that may not be what you intended.
+**Important** - Be careful with edits at past or future dates.  Notice how I specify the effective date both when loading and preparing the revision.  It will still work if you skip the date when loading, but you may be copying other *current* data to your new date, and that may not be what you intended.
 
 #### Deleting a document
+
+When you delete a temporal document, you aren't really deleting it.  Instead, you are creating a new revision with the `Raven-Document-Temporal-Deleted` metadata value set to true.  This translation happens inside the bundle, so you can still issue a normal delete from the api.
 
     // delete as of now
     var foo = session.Load<Foo>("foos/1");
@@ -168,9 +170,9 @@ Normally, you would load a document, modify it, and save changes.  This will thr
 
 #### Querying
 
-There are many different ways to query temporal data, some are simple, some are complex.  There are probably other possibilities other than those described in this documentation, but here are some basics to get you started:
+There are many different ways to query temporal data, some are simple, and some are complex.  There are probably other possibilities other than those described in this documentation, but here are some basics to get you started:
 
-**Important** - Unlike RavenDB's standard Versioning bundle, the Temporal Versioning bundle indexes *everything*, including current data, revisions, and artifacts.  In order to avoid duplicates, the results must be filtered.  If you specify an effective date on your session, this is done for you server-side and the statistics `SkippedResults` and `TotalResults` will be affected.  This is important when paging your query results.  Refer to the [RavenDB Documentation](http://ravendb.net/docs/client-api/querying/paging) on paging with skipped results.
+**Important** - Unlike RavenDB's standard Versioning bundle, the Temporal Versioning bundle does not exclude revisions from being indexed.  By default *everything* is indexed, including current data, revisions, and artifacts.  In order to avoid duplicates, the results must be filtered.  If you specify an effective date on your session, this is done for you server-side and the statistics `SkippedResults` and `TotalResults` will be affected.  This is important when paging your query results.  Refer to the [RavenDB Documentation](http://ravendb.net/docs/client-api/querying/paging) on paging with skipped results.
 
 ##### Querying data dynamically
 
@@ -200,7 +202,7 @@ If you want to *only* query current data, you can simply filter in the index and
     // Returns only current results.  The bundle doesn't have to filter because the index contained only current data.
     var results = session.Query<Foo, Foos_CurrentByBar>().Where(x=> x.Bar == 123);
 
-If you might be querying for current data sometimes, and noncurrent data sometime, then it makes more sense to index everything and query temporally.
+If you might be querying for current data sometimes, and non-current data at other times, then it makes more sense to index everything and query temporally.
 
     public class Foos_ByBar : AbstractIndexCreationTask<Foo>
     {
@@ -258,7 +260,7 @@ When current data changes, either by putting a new revision or by the Temporal A
 
 Temporal Map/Reduce is needed if you want to be able to get totals at an arbitrary point in time.  This is a difficult problem to solve, and requires an advanced pattern that is currently difficult to express in RavenDB.  Refer to the `Employees_TemporalCount` index in the unit tests for an example of how it can be done.  Also be sure to look at the way that this data must be queried in order to get valid results.
 
-There may be ways to express indexes more easily if one can pre-determine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  Unfortunately, this would probably require use of Enumerable.Range in the index map, which is currently unsupported in Raven.  When issue [RavenDB-757](http://issues.hibernatingrhinos.com/issue/RavenDB-757) is resolved, the documentation and tests will be updated with an example.
+There may be ways to express indexes more easily if one can pre-determine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  Unfortunately, this would probably require use of `Enumerable.Range` in the index map, which is currently unsupported in Raven.  When issue [RavenDB-757](http://issues.hibernatingrhinos.com/issue/RavenDB-757) is resolved, the documentation and tests will be updated with an example.
 
 ## Temporal Metadata
 TBD
