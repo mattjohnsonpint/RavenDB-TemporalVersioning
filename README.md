@@ -159,32 +159,106 @@ Normally, you would load a document, modify it, and save changes.  This will thr
     // delete as of now
     var foo = session.Load<Foo>("foos/1");
     session.EffectiveNow().Delete(foo);
+    session.SaveChanges();
 
     // delete at some past or future date
-    var foo = session.Load<Foo>("foos/1");
+    var foo = session.Effective(dto).Load<Foo>("foos/1");
     session.Effective(dto).Delete(foo);
+    session.SaveChanges();
 
 #### Querying
 
-This is where things get fun.  There are many different ways to query temporal data, some are simple, some are complex.  Here are some basics to get you started:
+There are many different ways to query temporal data, some are simple, some are complex.  There are probably other possibilities other than those described in this documentation, but here are some basics to get you started:
 
-##### Querying current data dynamically
-TBD
+**Important** - Unlike RavenDB's standard Versioning bundle, the Temporal Versioning bundle indexes *everything*, including current data, revisions, and artifacts.  In order to avoid duplicates, the results must be filtered.  If you specify an effective date on your session, this is done for you server-side and the statistics `SkippedResults` and `TotalResults` will be affected.  This is important when paging your query results.  Refer to the [RavenDB Documentation](http://ravendb.net/docs/client-api/querying/paging) on paging with skipped results.
 
-##### Querying current data with a static index
-TBD
+##### Querying data dynamically
 
-##### Querying non-current data dynamically
-TBD
+    // query as of now
+    var results = session.EffectiveNow().Query<Foo>().Where(x=> x.Bar == 123);
 
-##### Querying non-current data with a static index
-TBD
+    // query at some past or future date
+    var results = session.Effective(dto).Query<Foo>().Where(x=> x.Bar == 123);
+
+##### Querying with a static index
+
+If you want to *only* query current data, you can simply filter in the index and query non-temporally.  It's helpful to name the index such that you can remember that it is filtered.
+
+    public class Foos_CurrentByBar : AbstractIndexCreationTask<Foo>
+    {
+        public Foos_CurrentByBar()
+        {
+            Map = foos => from foo in foos
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          where status == TemporalStatus.Current
+                          select new {
+                                         foo.Bar
+                                     };
+        }
+    }
+
+    // Returns only current results.  The bundle doesn't have to filter because the index contained only current data.
+    var results = session.Query<Foo, Foos_CurrentByBar>().Where(x=> x.Bar == 123);
+
+If you might be querying for current data sometimes, and noncurrent data sometime, then it makes more sense to index everything and query temporally.
+
+    public class Foos_ByBar : AbstractIndexCreationTask<Foo>
+    {
+        public Foos_ByBar()
+        {
+            Map = foos => from foo in foos
+                          select new {
+                                         foo.Bar
+                                     };
+        }
+    }
+
+    // Returns current results, because the bundle filtered the results to those that are effective now.
+    var results = session.EffectiveNow().Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
+
+    // Returns past or future results, because the bundle filtered the results to those that matched the effective date we asked for.
+    var results = session.Effective(dto).Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
 
 ##### Map/Reduce of current data
-TBD
+
+Just like above, if you only care about current data, map/reduce is easy.  Just filter to current data when mapping, and everything works as normal.
+
+When current data changes, either by putting a new revision or by the Temporal Activator promoting a revision to current, the index will be updated and the new totals will be reflected.
+
+    public class Foos_CurrentCount : AbstractIndexCreationTask<Foo, Foos_CurrentCount.Result>
+    {
+        public class Result
+        {
+            public int Count { get; set; }
+        }
+
+        public Foos_CurrentCount()
+        {
+            Map = foos => from foo in foos
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          where status == TemporalStatus.Current
+                          select new {
+                                         Count = 1
+                                     };
+
+            Reduce = results => from result in results
+                                group result by 0
+                                into g
+                                select new {
+                                               Count = g.Sum(x => x.Count)
+                                           };
+        }
+    }
+
+    // get the current count of foos
+    var result = session.Query<Foos_CurrentCount.Result, Foos_CurrentCount>().First();
+    var count = result.Count;
 
 ##### Temporal Map/Reduce of non-current data
-TBD
+
+Temporal Map/Reduce is needed if you want to be able to get totals at an arbitrary point in time.  This is a difficult problem to solve, and requires an advanced pattern that is currently difficult to express in RavenDB.  Refer to the `Employees_TemporalCount` index in the unit tests for an example of how it can be done.  Also be sure to look at the way that this data must be queried in order to get valid results.
+
+There may be ways to express indexes more easily if one can pre-determine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  Unfortunately, this would probably require use of Enumerable.Range in the index map, which is currently unsupported in Raven.  When issue [RavenDB-757](http://issues.hibernatingrhinos.com/issue/RavenDB-757) is resolved, the documentation and tests will be updated with an example.
 
 ## Temporal Metadata
 TBD
