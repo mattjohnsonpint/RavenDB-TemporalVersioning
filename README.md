@@ -37,7 +37,7 @@ Like all RavenDB bundles, the Temporal Versioning bundle must be enabled on each
 
 ##### Enabling Temporal Versioning on a Standard Database
 
-For normal RavenDB tenant databases, this is done by modifying the `Raven/Databases/YourDatabase` document in the Raven system database.  In the `Settings` property, the `Raven/ActiveBundles` setting controls which bundles are enabled for the database.  It is a comma-separated list of bundle names, and you can include `TemporalVersioning` in that last.  
+For normal RavenDB tenant databases, this is done by modifying the `Raven/Databases/YourDatabase` document in the Raven system database.  In the `Settings` property, the `Raven/ActiveBundles` setting controls which bundles are enabled for the database.  It is a comma-separated list of bundle names, and you can include `TemporalVersioning` in that list.  
 
 To make this easier from code, you can call the following extension method after you create your database:
 
@@ -83,7 +83,7 @@ It doesn't matter what offset you provide, as things will be converted to UTC wh
 - It is much easier just to pass a `DateTimeOffset` instance.  They are unambiguous.
 - Be aware that two `DateTimeOffset` values are equal if their UTC converted times are equal.  For example, `2012-01-01T00:00:00+00:00` and `2012-01-01T02:00:00+02:00` refer to the same instantaneous moment, and are therefore equivalent.  You can use an offset that is contextually relavent for your own purposes without regard to conversion.  If you have no context, or just don't care, then use UTC.
 - RavenDB stores all `DateTime` and `DateTimeOffset` value in ISO8601 format.  This is available in .Net via  the round trip string formatter, `.ToString("o")`.
-- A `DateTimeOffset` in a Raven document or metadata will maintain its offset, but when used in an index map, it will be converted to a UTC `DateTime`.  This is imporant and desired behavior such that sorting and filtering still honors the equality behavior described earlier.
+- A `DateTimeOffset` in a Raven document or metadata will maintain its offset, but when used in an index map, it will be converted to a UTC `DateTime`.  This is important and desired behavior such that sorting and filtering still honors the equality behavior described earlier.
 
 ### Temporal Session Operations
 
@@ -95,11 +95,11 @@ There are two extension methods added to Raven's `IDocumentSession` interface th
     // access current data
     session.EffectiveNow().Whatever()
 
-By providing an effective date, revisions of the data can be made in the past, present, or future.  Both methods have the same effect. `EffectiveNow()` is just a convienience method that wraps `Effective(DateTimeOffset.UtcNow)` to make common operations less cumbersome.
+By providing an effective date, revisions of the data can be made in the past, present, or future.  Both methods have the same effect. `EffectiveNow()` is just a convenience method that wraps `Effective(DateTimeOffset.UtcNow)` to make common operations less cumbersome.
 
 The methods available from here are mostly the same as you're already used to with raven synchronous session methods, such as `.Store()`, `.Delete()`, `.Load()`, `.Query()`, and there are some new ones, as you will see in the examples below.
 
-**Important** - Whenever writing a new revision of the data (regardless of create, update or delete), the effective date represents the date the revision goes into effect.  It is assumed that the revision will last *forever* until you provide the next revision.  If you provide a date that steps on existing data, the old data will no longer be part of the valid revision history.  The old revisions are not deleted, but they are turned into *artifacts* which are no longer valid represenations of the data at any point in time.  Artifacts are useful can be used for audit trails.
+**Important** - Whenever writing a new revision of the data (regardless of create, update or delete), the effective date represents the date the revision goes into effect.  It is assumed that the revision will last *forever* until you provide the next revision.  If you provide a date that steps on existing data, the old data will no longer be part of the valid revision history.  The old revisions are not deleted, but they are turned into *artifacts* which are no longer valid representations of the data at any point in time.  Artifacts are useful can be used for audit trails.
 
 For those familiar with the concepts of *bi-temporal* data, this bundle is mostly focused on tracking effectivity through the *valid time* dimension, while the artifacts provide access to the *transaction time* dimension.
 
@@ -152,7 +152,7 @@ Normally, you would load a document, modify it, and save changes.  This will thr
     foo.Bar = 123;
     session.SaveChanges();
 
-**Imporant** - Be careful with edits at past or future dates.  Notice how I specifify the effective date both when loading and preparing the revision.  It will still work if you skip the date when loading, but you may be copying other *current* data to your new date, and that may not be what you intended.
+**Imporant** - Be careful with edits at past or future dates.  Notice how I specify the effective date both when loading and preparing the revision.  It will still work if you skip the date when loading, but you may be copying other *current* data to your new date, and that may not be what you intended.
 
 #### Deleting a document
 
@@ -168,13 +168,13 @@ Normally, you would load a document, modify it, and save changes.  This will thr
 
 This is where things get fun.  There are many different ways to query temporal data, some are simple, some are complex.  Here are some basics to get you started:
 
-##### Querying current data dynamicaly
+##### Querying current data dynamically
 TBD
 
 ##### Querying current data with a static index
 TBD
 
-##### Querying non-current data dynamicaly
+##### Querying non-current data dynamically
 TBD
 
 ##### Querying non-current data with a static index
