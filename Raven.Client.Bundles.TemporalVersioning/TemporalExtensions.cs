@@ -86,13 +86,21 @@ namespace Raven.Client.Bundles.TemporalVersioning
             return session.GetMetadataFor(instance).GetTemporalMetadata();
         }
 
-        public static void ActivateTemporalVersioningBundle(this IDocumentStore documentStore, string databaseName = null)
+        /// <summary>
+        /// Activates the TemporalVersioning bundle on a tenant database by modifying the Raven/ActiveBundles setting.
+        /// </summary>
+        /// <param name="documentStore">The document store instance.</param>
+        /// <param name="databaseName">The name of the tenant database to activate on.</param>
+        public static void ActivateTemporalVersioningBundle(this IDocumentStore documentStore, string databaseName)
         {
             documentStore.ActivateBundle(databaseName, TemporalConstants.BundleName);
         }
 
         private static void ActivateBundle(this IDocumentStore documentStore, string databaseName, string bundleName)
         {
+            if (!(documentStore is DocumentStore))
+                throw new InvalidOperationException("Embedded databases cannot use this method.  Add the bundle assembly to the configuration catalog instead.");
+
             using (var session = documentStore.OpenSession())
             {
                 var databaseDocument = session.Load<DatabaseDocument>("Raven/Databases/" + databaseName);
