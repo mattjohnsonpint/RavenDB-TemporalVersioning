@@ -15,8 +15,8 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
         public Employees_CurrentCount()
         {
             Map = employees => from employee in employees
-                               let status = MetadataFor(employee)[TemporalConstants.RavenDocumentTemporalStatus]
-                               where status.ToString() == TemporalStatus.Current.ToString()
+                               let status = MetadataFor(employee).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                               where status == TemporalStatus.Current
                                select new {
                                               Count = 1
                                           };

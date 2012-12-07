@@ -1,7 +1,7 @@
 Temporal Versioning Bundle for RavenDB
 ======================================
 
-This a custom bundle for RavenDB.  It requires RavenDB version 2.0.2161 or higher.
+This a custom bundle for RavenDB.  It requires RavenDB version 2.0.2170 or higher.
 
 It allows you to make changes to a document that are effective at a particular point in time.  Often, this will be "now", but it can easily be a past or future date.  All version history is maintained.
 

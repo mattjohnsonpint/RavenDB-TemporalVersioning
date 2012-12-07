@@ -30,29 +30,25 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
 
             // Map a +1 on each Start date
             AddMap<Employee>(employees => from employee in employees
-                                          let status = MetadataFor(employee)[TemporalConstants.RavenDocumentTemporalStatus]
-                                          let effective = MetadataFor(employee)[TemporalConstants.RavenDocumentTemporalEffectiveStart]
-                                          let deleted = MetadataFor(employee)[TemporalConstants.RavenDocumentTemporalDeleted]
-                                          where status.ToString() == TemporalStatus.Revision.ToString() &&
-                                                deleted.ToString().ToLower() == "false"
-                                          select new
-                                              {
-                                                  Effective = effective,
-                                                  Count = 1
-                                              });
+                                          let status = MetadataFor(employee).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                                          let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalConstants.RavenDocumentTemporalEffectiveStart)
+                                          let deleted = MetadataFor(employee).Value<bool>(TemporalConstants.RavenDocumentTemporalDeleted)
+                                          where status == TemporalStatus.Revision && deleted == false
+                                          select new {
+                                                         Effective = effective,
+                                                         Count = 1
+                                                     });
 
             // Map a -1 on each Until date
             AddMap<Employee>(employees => from employee in employees
-                                          let status = MetadataFor(employee)[TemporalConstants.RavenDocumentTemporalStatus]
-                                          let effective = MetadataFor(employee)[TemporalConstants.RavenDocumentTemporalEffectiveUntil]
-                                          let deleted = MetadataFor(employee)[TemporalConstants.RavenDocumentTemporalDeleted]
-                                          where status.ToString() == TemporalStatus.Revision.ToString() &&
-                                                deleted.ToString().ToLower() == "false"
-                                          select new
-                                              {
-                                                  Effective = effective,
-                                                  Count = -1
-                                              });
+                                          let status = MetadataFor(employee).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                                          let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalConstants.RavenDocumentTemporalEffectiveUntil)
+                                          let deleted = MetadataFor(employee).Value<bool>(TemporalConstants.RavenDocumentTemporalDeleted)
+                                          where status == TemporalStatus.Revision && deleted == false
+                                          select new {
+                                                         Effective = effective,
+                                                         Count = -1
+                                                     });
 
             // Reduce by date, consolidating the deltas for each date and throwing out the zeros.
             Reduce = results => from result in results
@@ -60,29 +56,26 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
                                 into g
                                 let count = g.Sum(x => x.Count)
                                 where count != 0
-                                select new
-                                    {
-                                        Effective = g.Key,
-                                        Count = count
-                                    };
+                                select new {
+                                               Effective = g.Key,
+                                               Count = count
+                                           };
 
             // Transform the count such that each date includes all of the counts before it.
             // The .ToList(), group/ungroup, and Convert.ToInt32() are hacks to get Raven to cooperate.
             TransformResults = (database, results) => from result in results.ToList()
                                                       group result by 0
-                                                          into g
-                                                          from z in g
-                                                          select new
-                                                              {
-                                                                  z.Effective,
-                                                                  Count = g.Where(x => x.Effective <= z.Effective).Sum(x => Convert.ToInt32(x.Count))
-                                                              };
+                                                      into g
+                                                      from z in g
+                                                      select new {
+                                                                     z.Effective,
+                                                                     Count = g.Where(x => x.Effective <= z.Effective).Sum(x => Convert.ToInt32(x.Count))
+                                                                 };
 
             // TODO: Both of these work, but which is faster?
 
             // TODO: Bigger problem: Even though we are summing things here, we still have to return all results when querying or dates get skipped and the toals are wrong.
             //       We might as well be doing all of it client-side.  Really need to find a way to get it all in the reduce and avoid a transform.
-
 
             //TransformResults = (database, results) => from result in results.ToList()
             //                                          group result by 0
@@ -94,7 +87,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
             //                                                  z.Effective,
             //                                                  z.Count
             //                                              };
-
         }
     }
 }
