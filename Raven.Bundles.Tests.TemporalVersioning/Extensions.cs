@@ -14,10 +14,10 @@ namespace Raven.Bundles.Tests.TemporalVersioning
             documentStore.Configuration.Catalog.Catalogs.Add(new AssemblyCatalog(typeof(TemporalActivator).Assembly));
             documentStore.Initialize();
 
-            // Enable temporal versioning by default
+            // Enable temporal versioning by default for the tests
             using (var session = documentStore.OpenSession())
             {
-                session.ConfigureTemporalVersioningDefaults(true);
+                session.Advanced.ConfigureTemporalVersioningDefaults(true);
                 session.SaveChanges();
             }
 

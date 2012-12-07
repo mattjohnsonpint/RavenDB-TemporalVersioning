@@ -11,7 +11,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
         /// <summary>
         /// Configures temporal versioning for all documents that aren't configured separately.
         /// </summary>
-        public static void ConfigureTemporalVersioningDefaults(this IDocumentSession session, bool enabled)
+        public static void ConfigureTemporalVersioningDefaults(this IAdvancedDocumentSessionOperations session, bool enabled)
         {
             session.ConfigureTemporalVersioning(enabled, "DefaultConfiguration");
         }
@@ -19,7 +19,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
         /// <summary>
         /// Configures temporal versioning for an individual document type.
         /// </summary>
-        public static void ConfigureTemporalVersioning<T>(this IDocumentSession session, bool enabled)
+        public static void ConfigureTemporalVersioning<T>(this IAdvancedDocumentSessionOperations session, bool enabled)
         {
             session.ConfigureTemporalVersioning(enabled, typeof(T));
         }
@@ -27,19 +27,20 @@ namespace Raven.Client.Bundles.TemporalVersioning
         /// <summary>
         /// Configures temporal versioning for an individual document type.
         /// </summary>
-        public static void ConfigureTemporalVersioning(this IDocumentSession session, bool enabled, Type documentType)
+        public static void ConfigureTemporalVersioning(this IAdvancedDocumentSessionOperations session, bool enabled, Type documentType)
         {
-            var entityName = session.Advanced.DocumentStore.Conventions.GetTypeTagName(documentType);
+            var entityName = session.DocumentStore.Conventions.GetTypeTagName(documentType);
             session.ConfigureTemporalVersioning(enabled, entityName);
         }
 
-        private static void ConfigureTemporalVersioning(this IDocumentSession session, bool enabled, string entityName)
+        private static void ConfigureTemporalVersioning(this IAdvancedDocumentSessionOperations session, bool enabled, string entityName)
         {
-            session.Store(new TemporalVersioningConfiguration
-                {
-                    Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
-                    Enabled = enabled
-                });
+            var inMemoryDocumentSessionOperations = ((InMemoryDocumentSessionOperations) session);
+            var configuration = new TemporalVersioningConfiguration {
+                                                                        Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
+                                                                        Enabled = enabled
+                                                                    };
+            inMemoryDocumentSessionOperations.Store(configuration);
         }
 
         public static T[] GetTemporalRevisionsFor<T>(this ISyncAdvancedSessionOperation session, string id, int start, int pageSize)
@@ -53,7 +54,8 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         public static string[] GetTemporalRevisionIdsFor(this ISyncAdvancedSessionOperation session, string id, int start, int pageSize)
         {
-            var jsonDocuments = ((DocumentSession)session).DatabaseCommands.StartsWith(id + TemporalConstants.TemporalKeySeparator, null, start, pageSize, metadataOnly: true);
+            var jsonDocuments = ((DocumentSession) session).DatabaseCommands.StartsWith(id + TemporalConstants.TemporalKeySeparator, null, start, pageSize,
+                                                                                        metadataOnly: true);
             return jsonDocuments
                 .Select(document => document.Key)
                 .ToArray();

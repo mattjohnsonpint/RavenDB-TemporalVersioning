@@ -64,10 +64,10 @@ A few notes:
 To make this easier from code, you can use the following extension methods after you create your database:
 
     // per document type
-    session.ConfigureTemporalVersioning<YourEntity>(true);
+    session.Advanced.ConfigureTemporalVersioning<YourEntity>(true);
 
     // globally
-    session.ConfigureTemporalVersioningDefaults(true);
+    session.Advanced.ConfigureTemporalVersioningDefaults(true);
 
 # Usage
 
