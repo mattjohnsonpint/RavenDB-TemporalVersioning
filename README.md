@@ -329,25 +329,25 @@ If you had more complex concerns for building your audit trail, you could use a 
 
 The Temporal Versioning Bundle adds several new metadata values to temporal documents.
 
-- **`Raven-Document-Temporal-Revision`**  
+- `Raven-Document-Temporal-Revision`  
 The integer revision number, starting from 1.
 
-- **`Raven-Document-Temporal-Effective-Start`**  
+- `Raven-Document-Temporal-Effective-Start`  
 The `DateTimeOffset` that the document becomes effective.
 
-- **`Raven-Document-Temporal-Effective-Until`**  
+- `Raven-Document-Temporal-Effective-Until`  
 The `DateTimeOffset` that the document is effective until.
 
 **Note:** - The *Start* and *Until* dates form an inclusive/exclusive range over instantaneous valid time.
 Using [interval notation](http://en.wikipedia.org/wiki/Interval_(mathematics)#Notations_for_intervals) -  `[start, until)`
 
-- **`Raven-Document-Temporal-Deleted`**  
+- `Raven-Document-Temporal-Deleted`  
 A `true` or `false` value indicating if this revision represents a deletion.
 
-- **`Raven-Document-Temporal-Pending`**  
+- `Raven-Document-Temporal-Pending`  
 A `true` or `false` value indicating if this is a future revision that has not yet been made current.  It is pending activation.
 
-- **`Raven-Document-Temporal-Status`**  
+- `Raven-Document-Temporal-Status`  
 The temporal status of the document, one of the following values:
 
     * `Current` - The document is a root-level current document, for example foos/1.
