@@ -339,7 +339,7 @@ The `DateTimeOffset` that the document becomes effective.
 The `DateTimeOffset` that the document is effective until.
 
 **Note:** - The *Start* and *Until* dates form an inclusive/exclusive range over instantaneous valid time.
-Using [interval notation](http://en.wikipedia.org/wiki/Interval_(mathematics)#Notations_for_intervals) -  `[start, until)`
+Using [interval notation](http://en.wikipedia.org/wiki/Interval_%28mathematics%29#Notations_for_intervals) -  `[start, until)`
 
 - `Raven-Document-Temporal-Deleted`  
 A `true` or `false` value indicating if this revision represents a deletion.
