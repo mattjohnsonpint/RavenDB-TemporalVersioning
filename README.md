@@ -262,9 +262,166 @@ Temporal Map/Reduce is needed if you want to be able to get totals at an arbitra
 
 There may be ways to express indexes more easily if one can pre-determine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  Unfortunately, this would probably require use of `Enumerable.Range` in the index map, which is currently unsupported in Raven.  When issue [RavenDB-757](http://issues.hibernatingrhinos.com/issue/RavenDB-757) is resolved, the documentation and tests will be updated with an example.
 
+## Getting an Audit Trail
+
+Consider the following three events.
+
+    // On January 1 we create a document.
+    var dto = DateTimeOffset.Parse("2012-01-01T00:00:00Z")
+    session.Effective(dto).Store(new Foo { Id = "foos/1", Bar = 123 });
+    session.SaveChanges();
+
+    // On March 1 we update the document with a new value.
+    var dto = DateTimeOffset.Parse("2012-03-01T00:00:00Z")
+    var foo = session.Effective(dto).Load("foos/1");
+    session.PrepareNewVersion(foo, dto)
+    foo.Bar = 456;
+    foo.SaveChanges();
+
+    // Sometime later, we decide that the data should have been different effective Feb 1.
+    var dto = DateTimeOffset.Parse("2012-02-01T00:00:00Z")
+    var foo = session.Effective(dto).Load("foos/1");
+    session.PrepareNewVersion(foo, dto)
+    foo.Bar = 999;
+    foo.SaveChanges();
+
+We have made three changes, but the third change was effective *before* the second one.  So the second change (with bar=456) is no longer valid data.  It is an *artifact*.  If we query the data, we will never recieve this revision.
+
+But what if we want to produce an audit trail? We need to see all historical changes for "foos/1".  This will include both revisions and artifacts.  We can do this without an index with the following code:
+
+    // get all history for foos/1
+    var revisions = session.Advanced.GetTemporalRevisionsFor("foos/1", start, pageSize);
+
+You an also get back just the ids and then load them separately:
+    
+    var revisionIds = session.Advanced.GetTemporalRevisionIdsFor("foos/1", start, pageSize);
+
+Both of these methods require pagination of their results.  For the transaction time, you can use the `Last-Modified` metavalue that Raven sets.
+
+If you had more complex concerns for building your audit trail, you could use a static index such as the following:
+
+    public class Foos_History : AbstractIndexCreationTask<Foo, Foos_History.Result>
+    {
+        public class Result
+        {
+            public string Id { get; set; }
+            public DateTimeOffset TransactionTime { get; set; }
+            public string ChangedBy { get; set; }
+        }
+
+        public Foos_History()
+        {
+            Map = foos => from foo in foos
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          where status == TemporalStatus.Revision || status == TemporalStatus.Artifact
+                          select new {
+                                         foo.Id,
+                                         TransactionTime = MetadataFor(foo)["Last-Modified"],
+                                         ChangedBy = MetadataFor(foo)["Your-Custom-Metadata-For-Who-Made-The-Change"]
+                                     };
+        }
+    }
+
+    // just an example of what you might want to query
+    var results = session.Query<Foos_History.Result, Foos_History>().Where(x=> x.Id.StartsWith("foos/1") && x.ChangedBy == "bob").OrderBy(x=> x.TransactionTime);
+
 ## Temporal Metadata
-TBD
 
-## Accessing Artifacts
-TBD
+The Temporal Versioning Bundle adds several new metadata values to temporal documents.
 
+- **`Raven-Document-Temporal-Revision`**  
+The integer revision number, starting from 1.
+
+- **`Raven-Document-Temporal-Effective-Start`**  
+The `DateTimeOffset` that the document becomes effective.
+
+- **`Raven-Document-Temporal-Effective-Until`**  
+The `DateTimeOffset` that the document is effective until.
+
+**Note:** - The *Start* and *Until* dates form an inclusive/exclusive range over instantaneous valid time.
+Using [interval notation](http://en.wikipedia.org/wiki/Interval_(mathematics)#Notations_for_intervals) -  `[start, until)`
+
+- **`Raven-Document-Temporal-Deleted`**  
+A `true` or `false` value indicating if this revision represents a deletion.
+
+- **`Raven-Document-Temporal-Pending`**  
+A `true` or `false` value indicating if this is a future revision that has not yet been made current.  It is pending activation.
+
+- **`Raven-Document-Temporal-Status`**  
+The temporal status of the document, one of the following values:
+
+    * `Current` - The document is a root-level current document, for example foos/1.
+    * `Revision` - The document is a revision, for example foos/1/temporalrevisions/1.
+    * `Artifact` - The document is a revision that is no longer valid.
+    * `New` - Used transitively when creating a new revision, such as after calling `session.PrepareNewRevision()`.  The bundle only allows new revisions to be stored, but it changes the status appropriately.  `New` is never actually stored with a document.
+    * `NonTemporal` - Returned when trying to get temporal status from a non-temporal document.  `NonTemporal` is never actually stored on a document.
+
+For convenience, you can access these via a few different ways.  These are all equivalent.
+
+    // directly by string
+    var metadata = session.Advanced.GetMetatadataFor(foo);
+    string status = metadata.Value<string>("Raven-Temporal-Status");
+
+    // the strings are all available as constants
+    var metadata = session.Advanced.GetMetatadataFor(foo);
+    string status = metadata.Value<string>(TemporalConstants.RavenDocumentTemporalStatus);
+
+    // there is a strongly-typed access already wired up to these values
+    var metadata = session.Advanced.GetMetatadataFor(foo);
+    var temporal = metadata.GetTemporalMetadata();
+    TemporalStatus status = temporal.Status;
+
+    // to save you some key strokes, you can get it directly
+    var temporal = session.Advanced.GetTemporalMetatadataFor(foo);
+    TemporalStatus status = temporal.Status;
+
+## Practical Application Guidance
+
+Temporal Versioning is a great tool to have in your toolbox, but it is not a pancea.  It is best applied to entities where there is meaningful business value to tracking changes - beyond just an audit trail.  If all you need is an audit trail, use RavenDB's standard versioning bundle instead.
+
+An easy use case to understand is for tracking changes in a payroll system.
+
+    public class Employee
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public decimal PayRate { get; set; }
+    }
+
+The employee's name could change, such as often happens after a marriage.  The employee's pay rate could change, such as often happens with promotion or demotion.  `Employee` is a great candidate for Temporal Versioning, because we may need to reference the name and pay rate that were effective at a particular date - such as writing a new paycheck without invalidating a payrate from an old paycheck.  With Temporal Versioning applied, we do not have to create other entities in our domain to model this changing data.
+
+Sometimes we may have properties in our temporal entities that we don't care about tracking, either because they can't change (such as `BirthDate`), or because we don't care about the changes (such as `FavoriteColor`). If there are just a few of these, then tracking them along with the other temporal data is just fine.  However, if you find there are many non-temporal properties and only a few temporal ones, then you may want to split these into separate documents.
+
+We also don't want to forget another tried-and-true technique - point-in-time-duplication.  An easy use case for this is an online ordering system.
+
+    public class Product
+    {
+        public string Id { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+    }
+
+    public class Order
+    {
+        public string Id { get; set; }
+        public DateTimeOffset OrderDate { get; set; }
+        public OrderLine[] Lines { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    public class OrderLine
+    {
+        public string ProductId { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+    }
+
+The *only* class here that should be temporal is the `Product`.  It could have temporal changes to its price, to reflect pricing changes, or to discontinue (delete) the product.
+
+`Order` and `OrderLine` are **NOT** good candidates for Temporal Versioning.  Each `OrderLine` class gets a copy of the price that was in effect at the time the order was placed.  This price never changes.  Sure, we could look up the price from the `Product` temporally - but this would make even simple lookups much more complicated than they would need to be.
+
+If one looks carefully at various other scenarios, a pattern emerges.  Point-in-time-duplication should be used when there is *some other* contextual time reference.  In this case - it's the `OrderDate`.  Temporal Versioning is a way to *add* a time context where none exists.  So if you're unsure where to use it, ask yourself if the Aggregate Entity already has its own concept of time or not.
+
+## Support
+
+This is a free community-contributed add-on to RavenDB.  For help, post questions on either *(but not both)* the [RavenDB Google Group](http://groups.google.com/group/ravendb) or to [Stack Overflow](http://www.stackoverflow.com) using the `RavenDB` tag.
