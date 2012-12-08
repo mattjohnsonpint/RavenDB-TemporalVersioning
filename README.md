@@ -285,7 +285,7 @@ Consider the following three events.
     foo.Bar = 999;
     foo.SaveChanges();
 
-We have made three changes, but the third change was effective *before* the second one.  So the second change (with bar=456) is no longer valid data.  It is an *artifact*.  If we query the data, we will never recieve this revision.
+We have made three changes, but the third change was effective *before* the second one.  So the second change (with bar=456) is no longer valid data.  It is an *artifact*.  If we query the data, we will never receive this revision.
 
 But what if we want to produce an audit trail? We need to see all historical changes for "foos/1".  This will include both revisions and artifacts.  We can do this without an index with the following code:
 
@@ -296,7 +296,7 @@ You an also get back just the ids and then load them separately:
     
     var revisionIds = session.Advanced.GetTemporalRevisionIdsFor("foos/1", start, pageSize);
 
-Both of these methods require pagination of their results.  For the transaction time, you can use the `Last-Modified` metavalue that Raven sets.
+Both of these methods require pagination of their results.  For the transaction time, you can use the `Last-Modified` metadata value that Raven sets.
 
 If you had more complex concerns for building your audit trail, you could use a static index such as the following:
 
@@ -377,7 +377,7 @@ For convenience, you can access these via a few different ways.  These are all e
 
 ## Practical Application Guidance
 
-Temporal Versioning is a great tool to have in your toolbox, but it is not a pancea.  It is best applied to entities where there is meaningful business value to tracking changes - beyond just an audit trail.  If all you need is an audit trail, use RavenDB's standard versioning bundle instead.
+Temporal Versioning is a great tool to have in your toolbox, but it is not a panacea.  It is best applied to entities where there is meaningful business value to tracking changes - beyond just an audit trail.  If all you need is an audit trail, use RavenDB's standard versioning bundle instead.
 
 An easy use case to understand is for tracking changes in a payroll system.
 
