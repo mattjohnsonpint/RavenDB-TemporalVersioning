@@ -29,8 +29,6 @@ Install the following packages where appropriate:
 - [RavenDB.Bundles.TemporalVersioning](http://nuget.org/packages/RavenDB.Bundles.TemporalVersioning)
 - [RavenDB.Client.TemporalVersioning](http://nuget.org/packages/RavenDB.Client.TemporalVersioning)
 
-***TBD: These have not yet been published to NuGet.***
-
 ### Enabling the Bundle
 
 Like all RavenDB bundles, the Temporal Versioning bundle must be enabled on each database that you plan on using it.

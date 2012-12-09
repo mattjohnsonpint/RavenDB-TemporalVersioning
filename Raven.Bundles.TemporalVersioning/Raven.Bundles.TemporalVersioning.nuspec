@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>RavenDB.Bundles.TemporalVersioning</id>
+    <version>2.0.0-Unstable</version>
+    <title>RavenDB Temporal Versioning bundle</title>
+    <authors>Matt Johnson</authors>
+    <description>RavenDB 'Temporal Versioning' bundle.  Allows for tracking of changes to entities at different effective dates.</description>
+    <language>en-US</language>
+    <licenseUrl>https://raw.github.com/mj1856/RavenDB-TemporalVersioning/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/mj1856/RavenDB-TemporalVersioning</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <tags>nosql ravendb raven document database client bundles temporal versioning bitemporal bi-temporal effectivity change tracking</tags>
+    <dependencies>
+      <dependency id="RavenDB.Database" version="2.0.2170-Unstable" />
+    </dependencies>
+    <iconUrl>http://static.ravendb.net/logo-for-nuget.png</iconUrl>
+    <references>
+      <reference file="Raven.Bundles.TemporalVersioning.dll" />
+      <reference file="Raven.Bundles.TemporalVersioning.Common.dll" />
+    </references>
+  </metadata>
+  <files>
+    <file src="bin\Release\Raven.Bundles.TemporalVersioning.Common.dll" target="lib\net40" />
+  </files>
+</package>
