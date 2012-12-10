@@ -78,7 +78,7 @@ It doesn't matter what offset you provide, as things will be converted to UTC wh
 - You can pass a `DateTime` in to any `DateTimeOffset` field.  There is a one-way, implicit conversion.  But be aware of the `.Kind` property of your `DateTime` values.
 - If you pass a `DateTime` with `Local` or `Unspecified` kind, the time zone of the computer where the code is running will be used and the `DateTime` value can change! `Local` comes from `DateTime.Now()` while `Unspecified` comes from `new DateTime()` or `DateTime.Parse()` when you don't explicitly set the `kind` parameter.
 - `Utc` kinds are safer.  These come from methods such as `DateTime.UtcNow()`.
-- It is much easier just to pass a `DateTimeOffset` instance.  They are unambiguousrelavent 
+- It is much easier just to pass a `DateTimeOffset` instance.  They are unambiguous. 
 - Be aware that two `DateTimeOffset` values are equal if their UTC converted times are equal.  For example, `2012-01-01T00:00:00+00:00` and `2012-01-01T02:00:00+02:00` refer to the same instantaneous moment, and are therefore equivalent.  You can use an offset that is contextually relevant for your own purposes without regard to conversion.  If you have no context, or just don't care, then use UTC.
 - RavenDB stores all `DateTime` and `DateTimeOffset` value in ISO8601 format.  This is available in .Net via  the round trip string formatter, `.ToString("o")`.
 - A `DateTimeOffset` in a Raven document or metadata will maintain its offset, but when used in an index map, it will be converted to a UTC `DateTime`.  This is important and desired behavior such that sorting and filtering still honors the equality behavior described earlier.
