@@ -2,10 +2,10 @@
 <package>
   <metadata>
     <id>RavenDB.Bundles.TemporalVersioning</id>
-    <version>2.0.0-Unstable</version>
-    <title>RavenDB Temporal Versioning bundle</title>
-    <authors>Matt Johnson</authors>
-    <description>RavenDB 'Temporal Versioning' bundle.  Allows for tracking of changes to entities at different effective dates.</description>
+    <version>$version$</version>
+    <title>RavenDB Temporal Versioning Bundle</title>
+    <authors>$author$</authors>
+    <description>$description$</description>
     <language>en-US</language>
     <licenseUrl>https://raw.github.com/mj1856/RavenDB-TemporalVersioning/master/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/mj1856/RavenDB-TemporalVersioning</projectUrl>

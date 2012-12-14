@@ -1,14 +1,13 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Raven.Bundles.TemporalVersioning.Common")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Raven.Bundles.TemporalVersioning.Common")]
+[assembly: AssemblyTitle("Common library for RavenDB Temporal Versioning Bundle")]
+[assembly: AssemblyDescription("RavenDB 'Temporal Versioning' bundle common code shared between server and client.")]
+
+[assembly: AssemblyCompany("Matt Johnson")]
+[assembly: AssemblyProduct("RavenDB Temporal Versioning Bundle")]
 [assembly: AssemblyCopyright("Copyright © 2012 Matt Johnson")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+
 [assembly: ComVisible(false)]
 
 [assembly: AssemblyInformationalVersion("2.0.0-Unstable")]
