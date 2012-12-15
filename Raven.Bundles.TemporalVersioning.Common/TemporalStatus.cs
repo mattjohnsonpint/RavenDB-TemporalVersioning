@@ -5,7 +5,6 @@
         NonTemporal,
         Current,
         Revision,
-        Artifact,
-        New
+        Artifact
     }
 }

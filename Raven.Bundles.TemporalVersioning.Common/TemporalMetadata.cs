@@ -62,6 +62,20 @@ namespace Raven.Bundles.TemporalVersioning.Common
             set { _metadata[TemporalConstants.RavenDocumentTemporalPending] = value; }
         }
 
+        public DateTimeOffset? Effective
+        {
+            get { return _metadata.Value<DateTimeOffset?>(TemporalConstants.RavenDocumentTemporalEffective); }
+            set
+            {
+                const string key = TemporalConstants.RavenDocumentTemporalEffective;
+
+                if (value.HasValue)
+                    _metadata[key] = value;
+                else if (_metadata.ContainsKey(key))
+                    _metadata.Remove(key);
+            }
+        }
+
         public DateTimeOffset? EffectiveStart
         {
             get { return _metadata.Value<DateTimeOffset?>(TemporalConstants.RavenDocumentTemporalEffectiveStart); }

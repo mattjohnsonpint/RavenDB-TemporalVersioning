@@ -41,9 +41,13 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.EffectiveDateHeader];
             if (headerValue == null || !DateTimeOffset.TryParse(headerValue, out effectiveDate))
             {
-                // If no effective data passed, return as stored.
+                // If no effective data passed, return current data, as stored, effective now.
+                temporal.Effective = DateTimeOffset.UtcNow;
                 return ReadVetoResult.Allowed;
             }
+
+            // Return the requested effective date in the metadata.
+            temporal.Effective = effectiveDate;
 
             // If the current document is already in range, just return it
             if (temporal.EffectiveStart <= effectiveDate && effectiveDate < temporal.EffectiveUntil)
@@ -92,7 +96,10 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
                 // Replace the resulting metadata
                 foreach (var prop in metadata.Keys)
-                    metadata.Remove(prop);
+                {
+                    if (prop != TemporalConstants.RavenDocumentTemporalEffective)
+                        metadata.Remove(prop);
+                }
                 var evMetadata = effectiveVersion.Metadata;
                 foreach (var prop in evMetadata.Keys)
                     metadata.Add(prop, evMetadata[prop]);

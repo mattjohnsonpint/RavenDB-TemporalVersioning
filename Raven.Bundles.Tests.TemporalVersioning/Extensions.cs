@@ -18,6 +18,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
             using (var session = documentStore.OpenSession())
             {
                 session.Advanced.ConfigureTemporalVersioningDefaults(true);
+
                 session.SaveChanges();
             }
 

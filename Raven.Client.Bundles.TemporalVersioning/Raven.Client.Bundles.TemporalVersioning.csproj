@@ -53,6 +53,7 @@
     <Compile Include="ISyncTemporalSessionOperation.cs" />
     <Compile Include="ITemporalLoaderWithInclude.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TemporalDeleteListener.cs" />
     <Compile Include="TemporalMultiLoaderWithInclude.cs" />
     <Compile Include="TemporalSessionOperation.cs" />
     <Compile Include="TemporalExtensions.cs" />

@@ -31,8 +31,11 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
             }
 
-            // Return the result if it's the active revision, or skip it otherwise.
+            // Return the requested effective date in the metadata.
             var temporal = metadata.GetTemporalMetadata();
+            temporal.Effective = effectiveDate;
+
+            // Return the result if it's the active revision, or skip it otherwise.
             return temporal.Status == TemporalStatus.Revision &&
                    temporal.EffectiveStart <= effectiveDate && effectiveDate < temporal.EffectiveUntil &&
                    !temporal.Deleted

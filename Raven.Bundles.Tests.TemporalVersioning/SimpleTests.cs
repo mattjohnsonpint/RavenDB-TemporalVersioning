@@ -22,6 +22,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var employee = new Employee { Id = id, Name = "John" };
                     session.Store(employee);
                     session.Advanced.GetMetadataFor(employee).Add("TestDateTimeOffset", testDateTimeOffset);
+
                     session.SaveChanges();
                 }
 
@@ -46,6 +47,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -59,6 +61,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var currentTemporal = session.Advanced.GetTemporalMetadataFor(current);
                     Assert.Equal(TemporalStatus.Current, currentTemporal.Status);
                     Assert.Equal(1, currentTemporal.RevisionNumber);
+                    Assert.NotNull(currentTemporal.Effective);
 
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
                     Assert.Equal(1, revisions.Length);
@@ -86,6 +89,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -95,7 +99,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     // there should be no current revision
                     var current = session.Load<Employee>(id);
                     Assert.Null(current);
-                    
+
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
                     Assert.Equal(1, revisions.Length);
 
@@ -123,6 +127,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -156,6 +161,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -163,10 +169,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Load<Employee>(id);
-                    session.PrepareNewRevision(employee, effectiveDate2);
+                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
                     employee.PayRate = 20;
-                    
+
                     session.SaveChanges();
                 }
 
@@ -215,6 +220,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -222,8 +228,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = effectiveDate1.AddSeconds(2);
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Load<Employee>(id);
-                    session.PrepareNewRevision(employee, effectiveDate2);
+                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
                     employee.PayRate = 20;
 
                     session.SaveChanges();
@@ -269,6 +274,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -276,8 +282,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Load<Employee>(id);
-                    session.PrepareNewRevision(employee, effectiveDate2);
+                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
                     employee.PayRate = 20;
 
                     session.SaveChanges();
@@ -287,8 +292,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate3 = new DateTimeOffset(new DateTime(2012, 3, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Load<Employee>(id);
-                    session.PrepareNewRevision(employee, effectiveDate3);
+                    var employee = session.Effective(effectiveDate3).Load<Employee>(id);
                     employee.PayRate = 30;
 
                     session.SaveChanges();
@@ -346,6 +350,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -353,8 +358,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Load<Employee>(id);
-                    session.PrepareNewRevision(employee, effectiveDate2);
+                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
                     employee.PayRate = 20;
 
                     session.SaveChanges();
@@ -364,12 +368,13 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate3 = new DateTimeOffset(new DateTime(2012, 1, 15));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Load<Employee>(id);
-                    session.PrepareNewRevision(employee, effectiveDate3);
+                    var employee = session.Effective(effectiveDate3).Load<Employee>(id);
                     employee.PayRate = 30;
 
                     session.SaveChanges();
                 }
+
+                WaitForUserToContinueTheTest(documentStore);
 
                 // Check the results
                 using (var session = documentStore.OpenSession())

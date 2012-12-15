@@ -9,6 +9,7 @@
         
         public const string RavenDocumentTemporalRevision = "Raven-Document-Temporal-Revision";
         public const string RavenDocumentTemporalStatus = "Raven-Document-Temporal-Status";
+        public const string RavenDocumentTemporalEffective = "Raven-Document-Temporal-Effective";
         public const string RavenDocumentTemporalEffectiveStart = "Raven-Document-Temporal-Effective-Start";
         public const string RavenDocumentTemporalEffectiveUntil = "Raven-Document-Temporal-Effective-Until";
         public const string RavenDocumentTemporalDeleted = "Raven-Document-Temporal-Deleted";

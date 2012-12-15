@@ -94,40 +94,32 @@ namespace Raven.Client.Bundles.TemporalVersioning
         public void Store(object entity, Guid etag)
         {
             _session.Store(entity, etag);
-            _session.PrepareNewRevision(entity, _effectiveDate);
+            PrepareNewRevision(entity);
         }
 
         public void Store(object entity, Guid etag, string id)
         {
             _session.Store(entity, etag, id);
-            _session.PrepareNewRevision(id, _effectiveDate);
+            PrepareNewRevision(entity);
         }
 
         public void Store(dynamic entity)
         {
             _session.Store(entity);
-            _session.PrepareNewRevision((object) entity, _effectiveDate);
+            PrepareNewRevision(entity);
         }
 
         public void Store(dynamic entity, string id)
         {
             _session.Store(entity, id);
-            _session.PrepareNewRevision(id, _effectiveDate);
+            PrepareNewRevision(entity);
         }
 
-        #endregion
-
-        #region Delete
-
-        public void Delete<T>(T entity)
+        private void PrepareNewRevision(object entity)
         {
-            // Deletions have to send the effective date in a header keyed by the document id
-            var key = _session.Advanced.GetDocumentId(entity);
-            var headers = ((DocumentSession) _session).DatabaseCommands.OperationsHeaders;
-            var header = String.Format("{0}-{1}", TemporalConstants.EffectiveDateHeader, key.Replace('/', '-'));
-            headers[header] = _effectiveDate.ToString("o");
-
-            _session.Delete(entity);
+            var temporal = _session.Advanced.GetTemporalMetadataFor(entity);
+            temporal.Status = TemporalStatus.Revision;
+            temporal.Effective = _effectiveDate;
         }
 
         #endregion
@@ -135,20 +127,22 @@ namespace Raven.Client.Bundles.TemporalVersioning
         internal T TemporalLoad<T>(Func<T> loadOperation)
         {
             // set aside any other temporal headers that were set on the session
-            var temp = _headers.AllKeys
-                               .Where(x => x.StartsWith("Temporal"))
-                               .ToDictionary(x => x, x => _headers[x]);
-            foreach (var header in temp)
-                _headers.Remove(header.Key);
+            //var temp = _headers.AllKeys
+            //                   .Where(x => x.StartsWith("Temporal"))
+            //                   .ToDictionary(x => x, x => _headers[x]);
+            //foreach (var header in temp)
+            //    _headers.Remove(header.Key);
 
             // perform the load operation, passing the temporal effective date header just for this operation
             _headers.Add(TemporalConstants.EffectiveDateHeader, _effectiveDate.ToString("o"));
             var result = loadOperation();
             _headers.Remove(TemporalConstants.EffectiveDateHeader);
-
+            
             // restore any headers that were removed above
-            foreach (var header in temp)
-                _headers.Add(header.Key, header.Value);
+            //foreach (var header in temp)
+            //    _headers.Add(header.Key, header.Value);
+
+            
 
             return result;
         }

@@ -36,10 +36,11 @@ namespace Raven.Client.Bundles.TemporalVersioning
         private static void ConfigureTemporalVersioning(this IAdvancedDocumentSessionOperations session, bool enabled, string entityName)
         {
             var inMemoryDocumentSessionOperations = ((InMemoryDocumentSessionOperations) session);
-            var configuration = new TemporalVersioningConfiguration {
-                                                                        Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
-                                                                        Enabled = enabled
-                                                                    };
+            var configuration = new TemporalVersioningConfiguration
+                {
+                    Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
+                    Enabled = enabled
+                };
             inMemoryDocumentSessionOperations.Store(configuration);
         }
 
@@ -61,20 +62,9 @@ namespace Raven.Client.Bundles.TemporalVersioning
                 .ToArray();
         }
 
-        public static void PrepareNewRevision(this IDocumentSession session, object entity)
-        {
-            session.PrepareNewRevision(entity, DateTimeOffset.UtcNow);
-        }
-
-        public static void PrepareNewRevision(this IDocumentSession session, object entity, DateTimeOffset effectiveDate)
-        {
-            var temporal = session.Advanced.GetTemporalMetadataFor(entity);
-            temporal.Status = TemporalStatus.New;
-            temporal.EffectiveStart = effectiveDate;
-        }
-
         public static ISyncTemporalSessionOperation Effective(this IDocumentSession session, DateTimeOffset effectiveDate)
         {
+            TemporalDeleteListener.Register(session);
             return new TemporalSessionOperation(session, effectiveDate);
         }
 

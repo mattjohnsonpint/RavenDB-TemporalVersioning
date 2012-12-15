@@ -29,11 +29,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return VetoResult.Deny("Modifying an existing temporal revision directly is not allowed.");
 
             var temporal = metadata.GetTemporalMetadata();
-            if (temporal.Status != TemporalStatus.New)
-                return VetoResult.Deny("Only new temporal revisions can be stored when temporal versioning is enabled.");
-
-            if (!temporal.EffectiveStart.HasValue)
-                return VetoResult.Deny("When storing a new temporal revision, the effective start date must be set.");
+            if (!temporal.Effective.HasValue)
+                return VetoResult.Deny("When storing a new temporal revision, the effective date must be set.");
 
             return VetoResult.Allowed;
         }
@@ -45,13 +42,17 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
             using (Database.DisableAllTriggersForCurrentThread())
             {
-                // When it's initially written, data is considered effective forever.
+                // When it's initially written, data is considered effective from the date specified to the end of time.
                 var temporal = metadata.GetTemporalMetadata();
+                temporal.EffectiveStart = temporal.Effective;
                 temporal.EffectiveUntil = DateTimeOffset.MaxValue;
-
+                
                 // See if the revision we're saving is current.
                 var now = SystemTime.UtcNow;
-                var current = temporal.EffectiveStart <= now;
+                var current = temporal.Effective <= now;
+
+                // Don't save the requested date with the document
+                temporal.Effective = null;
 
                 if (!current)
                 {

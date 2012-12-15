@@ -26,6 +26,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
+
                     session.SaveChanges();
                 }
 
@@ -33,8 +34,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 var effectiveDate2 = new DateTimeOffset(new DateTime(2012, 2, 1));
                 using (var session = documentStore.OpenSession())
                 {
-                    var employee = session.Load<Employee>(id);
-                    session.PrepareNewRevision(employee, effectiveDate2);
+                    var employee = session.Effective(effectiveDate2).Load<Employee>(id);
                     employee.PayRate = 20;
 
                     session.SaveChanges();
