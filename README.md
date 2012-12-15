@@ -57,7 +57,7 @@ If there is no configuration document found, or if there is no `Raven-Entity-Nam
 A few notes:
 
 - Raven system documents (any document having an id starting with `Raven/`) are never versioned.
-- Temporal Versioning should be enabled before storing any documents of a particular type.  Enabling temporal versioning on existing documents is not supported, and will probably delete your data.
+- **IMPORTANT** Temporal Versioning should be enabled before storing any documents of a particular type.  Enabling temporal versioning on existing documents is not currently supported, and will may delete your data.  (This will be supported in a future release.)
 
 To make this easier from code, you can use the following extension methods after you create your database:
 
@@ -95,7 +95,7 @@ There are two extension methods added to Raven's `IDocumentSession` interface th
 
 By providing an effective date, revisions of the data can be made in the past, present, or future.  Both methods have the same effect. `EffectiveNow()` is just a convenience method that wraps `Effective(DateTimeOffset.UtcNow)` to make common operations less cumbersome.
 
-The methods available from here are mostly the same as you're already used to with raven synchronous session methods, such as `.Store()`, `.Delete()`, `.Load()`, `.Query()`, and there are some new ones, as you will see in the examples below.
+The methods available from here are the same as you're already used to with raven synchronous session methods, such as `.Store()`, `.Delete()`, `.Load()`, and `.Query()`.
 
 **Important** - Whenever writing a new revision of the data (regardless of create, update or delete), the effective date represents the date the revision goes into effect.  It is assumed that the revision will last *forever* until you provide the next revision.  If you provide a date that steps on existing data, the old data will no longer be part of the valid revision history.  The old revisions are not deleted, but they are turned into *artifacts* which are no longer valid representations of the data at any point in time.  Artifacts are useful can be used for audit trails.
 
@@ -136,21 +136,19 @@ Perhaps I then add a revision 3 that deletes the document at 6:00.  There are no
 
 #### Updating a document
 
-Normally, you would load a document, modify it, and save changes.  This will throw an exception with temporal data, as we didn't tell it when the new revision is effective.  Therefore, we introduce a new method, `PrepareNewRevision()`.
+We can make changes to a document at any effective date.  If you don't specify one, the change is effective immediately.
 
     // make a change as of now
     var foo = session.Load<Foo>("foos/1");
-    session.PrepareNewRevision(foo);
     foo.Bar = 123;
     session.SaveChanges();
 
     // make a change at some past or future date
     var foo = session.Effective(dto).Load<Foo>("foos/1");
-    session.PrepareNewRevision(foo, dto);
     foo.Bar = 123;
     session.SaveChanges();
 
-**Important** - Be careful with edits at past or future dates.  Notice how I specify the effective date both when loading and preparing the revision.  It will still work if you skip the date when loading, but you may be copying other *current* data to your new date, and that may not be what you intended.
+It's important to realize that any change made to the document will be made effective as of the same date it was loaded for.
 
 #### Deleting a document
 
@@ -158,13 +156,15 @@ When you delete a temporal document, you aren't really deleting it.  Instead, yo
 
     // delete as of now
     var foo = session.Load<Foo>("foos/1");
-    session.EffectiveNow().Delete(foo);
+    session.Delete(foo);
     session.SaveChanges();
 
     // delete at some past or future date
     var foo = session.Effective(dto).Load<Foo>("foos/1");
-    session.Effective(dto).Delete(foo);
+    session.Delete(foo);
     session.SaveChanges();
+
+Just like with updates, the date you load the document for is the same effective date that will be applied to the delete.
 
 #### Querying
 
@@ -272,14 +272,12 @@ Consider the following three events.
     // On March 1 we update the document with a new value.
     var dto = DateTimeOffset.Parse("2012-03-01T00:00:00Z")
     var foo = session.Effective(dto).Load("foos/1");
-    session.PrepareNewVersion(foo, dto)
     foo.Bar = 456;
     foo.SaveChanges();
 
     // Sometime later, we decide that the data should have been different effective Feb 1.
     var dto = DateTimeOffset.Parse("2012-02-01T00:00:00Z")
     var foo = session.Effective(dto).Load("foos/1");
-    session.PrepareNewVersion(foo, dto)
     foo.Bar = 999;
     foo.SaveChanges();
 
@@ -330,6 +328,12 @@ The Temporal Versioning Bundle adds several new metadata values to temporal docu
 - `Raven-Document-Temporal-Revision`  
 The integer revision number, starting from 1.
 
+- `Raven-Document-Temporal-Effective`  
+A `DateTimeOffset` used transitively when loading or storing documents.
+This is set by the client to inform the server of the intended effective date.
+It is then returned on all documents so that the same date can be re-used for any changes.
+It is never actually stored on the document, so you cannot query by it.
+
 - `Raven-Document-Temporal-Effective-Start`  
 The `DateTimeOffset` that the document becomes effective.
 
@@ -351,7 +355,6 @@ The temporal status of the document, one of the following values:
     * `Current` - The document is a root-level current document, for example foos/1.
     * `Revision` - The document is a revision, for example foos/1/temporalrevisions/1.
     * `Artifact` - The document is a revision that is no longer valid.
-    * `New` - Used transitively when creating a new revision, such as after calling `session.PrepareNewRevision()`.  The bundle only allows new revisions to be stored, but it changes the status appropriately.  `New` is never actually stored with a document.
     * `NonTemporal` - Returned when trying to get temporal status from a non-temporal document.  `NonTemporal` is never actually stored on a document.
 
 For convenience, you can access these via a few different ways.  These are all equivalent.
