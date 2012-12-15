@@ -126,23 +126,10 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         internal T TemporalLoad<T>(Func<T> loadOperation)
         {
-            // set aside any other temporal headers that were set on the session
-            //var temp = _headers.AllKeys
-            //                   .Where(x => x.StartsWith("Temporal"))
-            //                   .ToDictionary(x => x, x => _headers[x]);
-            //foreach (var header in temp)
-            //    _headers.Remove(header.Key);
-
             // perform the load operation, passing the temporal effective date header just for this operation
             _headers.Add(TemporalConstants.EffectiveDateHeader, _effectiveDate.ToString("o"));
             var result = loadOperation();
             _headers.Remove(TemporalConstants.EffectiveDateHeader);
-            
-            // restore any headers that were removed above
-            //foreach (var header in temp)
-            //    _headers.Add(header.Key, header.Value);
-
-            
 
             return result;
         }
