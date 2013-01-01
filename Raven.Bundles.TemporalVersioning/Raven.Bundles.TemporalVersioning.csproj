@@ -50,6 +50,11 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Common\TemporalConstants.cs" />
+    <Compile Include="Common\TemporalExtensions.cs" />
+    <Compile Include="Common\TemporalMetadata.cs" />
+    <Compile Include="Common\TemporalStatus.cs" />
+    <Compile Include="Common\TemporalVersioningConfiguration.cs" />
     <Compile Include="TemporalActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TemporalRevisionsIndex.cs" />
@@ -59,12 +64,6 @@
     <Compile Include="Triggers\TemporalVersioningDeleteTrigger.cs" />
     <Compile Include="Triggers\TemporalVersioningPutTrigger.cs" />
     <Compile Include="Triggers\TemporalVersioningLoadTrigger.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Raven.Bundles.TemporalVersioning.Common\Raven.Bundles.TemporalVersioning.Common.csproj">
-      <Project>{396426c7-ed5d-4ae4-aeac-fdef68ec7166}</Project>
-      <Name>Raven.Bundles.TemporalVersioning.Common</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

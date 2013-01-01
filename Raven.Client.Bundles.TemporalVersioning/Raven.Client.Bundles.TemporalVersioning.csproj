@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -47,6 +47,21 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalConstants.cs">
+      <Link>Common\TemporalConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalExtensions.cs">
+      <Link>Common\TemporalExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalMetadata.cs">
+      <Link>Common\TemporalMetadata.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalStatus.cs">
+      <Link>Common\TemporalStatus.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalVersioningConfiguration.cs">
+      <Link>Common\TemporalVersioningConfiguration.cs</Link>
+    </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
@@ -57,12 +72,6 @@
     <Compile Include="TemporalMultiLoaderWithInclude.cs" />
     <Compile Include="TemporalSessionOperation.cs" />
     <Compile Include="TemporalExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Raven.Bundles.TemporalVersioning.Common\Raven.Bundles.TemporalVersioning.Common.csproj">
-      <Project>{396426c7-ed5d-4ae4-aeac-fdef68ec7166}</Project>
-      <Name>Raven.Bundles.TemporalVersioning.Common</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

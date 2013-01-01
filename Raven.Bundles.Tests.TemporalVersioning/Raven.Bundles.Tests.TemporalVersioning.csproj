@@ -83,10 +83,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Raven.Bundles.TemporalVersioning.Common\Raven.Bundles.TemporalVersioning.Common.csproj">
-      <Project>{396426c7-ed5d-4ae4-aeac-fdef68ec7166}</Project>
-      <Name>Raven.Bundles.TemporalVersioning.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Raven.Bundles.TemporalVersioning\Raven.Bundles.TemporalVersioning.csproj">
       <Project>{8310dfc1-0e0c-4534-b92c-8894599aefb1}</Project>
       <Name>Raven.Bundles.TemporalVersioning</Name>

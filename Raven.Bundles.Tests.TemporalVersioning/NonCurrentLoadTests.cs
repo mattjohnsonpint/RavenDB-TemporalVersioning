@@ -1,7 +1,7 @@
 ﻿using System;
-using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Bundles.Tests.TemporalVersioning.Entities;
 using Raven.Client.Bundles.TemporalVersioning;
+using Raven.Client.Bundles.TemporalVersioning.Common;
 using Raven.Tests.Helpers;
 using Xunit;
 

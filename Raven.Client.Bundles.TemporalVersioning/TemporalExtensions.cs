@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Raven.Abstractions.Data;
-using Raven.Bundles.TemporalVersioning.Common;
+using Raven.Client.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
-using Raven.Client.Linq;
 using Raven.Client.Listeners;
 
 namespace Raven.Client.Bundles.TemporalVersioning

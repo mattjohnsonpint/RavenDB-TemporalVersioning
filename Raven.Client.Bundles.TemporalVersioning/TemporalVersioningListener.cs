@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 using Raven.Abstractions;
 using Raven.Abstractions.Data;
-using Raven.Bundles.TemporalVersioning.Common;
+using Raven.Client.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
 using Raven.Client.Listeners;
 using Raven.Json.Linq;

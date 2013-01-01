@@ -10,17 +10,13 @@ The difference between this and Raven's official "Versioning Bundle" is that pas
 
 ### Manual Installation
 
-Copy these files to the Plugins folder where your RavenDB Server is installed:
+Copy this files to the Plugins folder where your RavenDB Server is installed:
 
 - Raven.Bundles.TemporalVersioning.dll
-- Raven.Bundles.TemporalVersioning.Common.dll
 
-Copy these files to your own solution and add a reference to them from your project(s).
+Copy this files to your own solution and add a reference to it from your project(s).
 
 - Raven.Client.Bundles.TemporalVersioning.dll
-- Raven.Bundles.TemporalVersioning.Common.dll
-
-Note that the *common* library goes in both places.
 
 ### NuGet Installation
 

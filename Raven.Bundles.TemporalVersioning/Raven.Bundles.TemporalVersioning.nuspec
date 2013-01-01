@@ -17,10 +17,6 @@
     <iconUrl>http://static.ravendb.net/logo-for-nuget.png</iconUrl>
     <references>
       <reference file="Raven.Bundles.TemporalVersioning.dll" />
-      <reference file="Raven.Bundles.TemporalVersioning.Common.dll" />
     </references>
   </metadata>
-  <files>
-    <file src="bin\Release\Raven.Bundles.TemporalVersioning.Common.dll" target="lib\net40" />
-  </files>
 </package>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq.Expressions;
-using Raven.Bundles.TemporalVersioning.Common;
+using Raven.Client.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
 using Raven.Client.Indexes;
 using Raven.Client.Linq;

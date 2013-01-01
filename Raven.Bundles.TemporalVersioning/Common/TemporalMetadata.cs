@@ -1,7 +1,11 @@
 ﻿using System;
 using Raven.Json.Linq;
 
+#if CLIENT
+namespace Raven.Client.Bundles.TemporalVersioning.Common
+#else
 namespace Raven.Bundles.TemporalVersioning.Common
+#endif
 {
     public class TemporalMetadata
     {

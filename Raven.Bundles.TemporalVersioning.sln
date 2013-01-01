@@ -17,8 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3F3143
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raven.Bundles.TemporalVersioning.Common", "Raven.Bundles.TemporalVersioning.Common\Raven.Bundles.TemporalVersioning.Common.csproj", "{396426C7-ED5D-4AE4-AEAC-FDEF68EC7166}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{66419A1A-D71D-409C-A45C-6BB04B09BF87}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.txt = LICENSE.txt
@@ -48,10 +46,6 @@ Global
 		{D08DC0B5-123A-4CA8-81A5-98C11B9BF179}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D08DC0B5-123A-4CA8-81A5-98C11B9BF179}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D08DC0B5-123A-4CA8-81A5-98C11B9BF179}.Release|Any CPU.Build.0 = Release|Any CPU
-		{396426C7-ED5D-4AE4-AEAC-FDEF68EC7166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{396426C7-ED5D-4AE4-AEAC-FDEF68EC7166}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{396426C7-ED5D-4AE4-AEAC-FDEF68EC7166}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{396426C7-ED5D-4AE4-AEAC-FDEF68EC7166}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
