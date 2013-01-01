@@ -410,8 +410,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     session.SaveChanges();
                 }
 
-                WaitForUserToContinueTheTest(documentStore);
-
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {

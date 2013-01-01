@@ -28,9 +28,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
             return documentStore;
         }
 
-        public static IRavenQueryable<T> OrderBy<T>(this IRavenQueryable<T> source, string field)
+        public static IRavenQueryable<T> OrderBy<T>(this IRavenQueryable<T> source, params string[] fields)
         {
-            return source.Customize(x => ((IDocumentQuery<T>) x).OrderBy(field));
+            return source.Customize(x => ((IDocumentQuery<T>) x).OrderBy(fields));
         }
     }
 }

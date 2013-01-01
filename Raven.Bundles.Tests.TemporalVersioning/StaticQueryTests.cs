@@ -58,8 +58,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.Equal(TemporalStatus.Current, temporal.Status);
                 }
 
-                //WaitForUserToContinueTheTest(documentStore);
-
                 // Query against a revisions index without temporal filtering and check the results
                 using (var session = documentStore.OpenSession())
                 {

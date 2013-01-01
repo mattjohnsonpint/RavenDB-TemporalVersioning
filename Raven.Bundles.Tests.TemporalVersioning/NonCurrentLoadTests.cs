@@ -34,8 +34,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     session.SaveChanges();
                 }
 
-                WaitForUserToContinueTheTest(documentStore);
-
                 // Load non-current data and check the results
                 using (var session = documentStore.OpenSession())
                 {
