@@ -37,7 +37,36 @@ namespace Raven.Bundles.Tests.TemporalVersioning
         }
 
         [Fact]
-        public void TemporalVersioning_NoEdits()
+        public void TemporalVersioning_NoEdits_Current()
+        {
+            using (var documentStore = this.GetTemporalDocumentStore())
+            {
+                const string id = "employees/1";
+                using (var session = documentStore.OpenSession())
+                {
+                    var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
+                    session.Store(employee);
+
+                    session.SaveChanges();
+                }
+
+                // Check the results
+                using (var session = documentStore.OpenSession())
+                {
+                    var current = session.Load<Employee>(id);
+                    Assert.Equal(id, current.Id);
+                    Assert.Equal(10, current.PayRate);
+
+                    var currentTemporal = session.Advanced.GetTemporalMetadataFor(current);
+                    Assert.Equal(TemporalStatus.Current, currentTemporal.Status);
+                    Assert.Equal(1, currentTemporal.RevisionNumber);
+                    Assert.NotNull(currentTemporal.Effective);
+                }
+            }
+        }
+
+        [Fact]
+        public void TemporalVersioning_NoEdits_Past()
         {
             using (var documentStore = this.GetTemporalDocumentStore())
             {
@@ -66,7 +95,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
                     Assert.Equal(1, revisions.Length);
 
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 1, revisions[0].Id);
+                    Assert.Equal(id, revisions[0].Id);
                     Assert.Equal(10, revisions[0].PayRate);
 
                     var version1Temporal = session.Advanced.GetTemporalMetadataFor(revisions[0]);
@@ -74,6 +103,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.False(version1Temporal.Deleted);
                     Assert.Equal(effectiveDate1, version1Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version1Temporal.EffectiveUntil);
+                    Assert.Equal(1, version1Temporal.RevisionNumber);
                 }
             }
         }
@@ -103,7 +133,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
                     Assert.Equal(1, revisions.Length);
 
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 1, revisions[0].Id);
+                    Assert.Equal(id, revisions[0].Id);
                     Assert.Equal(10, revisions[0].PayRate);
 
                     var version1Temporal = session.Advanced.GetTemporalMetadataFor(revisions[0]);
@@ -112,6 +142,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.True(version1Temporal.Pending);
                     Assert.Equal(effectiveDate1, version1Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version1Temporal.EffectiveUntil);
+                    Assert.Equal(1, version1Temporal.RevisionNumber);
                 }
             }
         }
@@ -189,8 +220,8 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
                     Assert.Equal(2, revisions.Length);
 
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 1, revisions[0].Id);
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 2, revisions[1].Id);
+                    Assert.Equal(id, revisions[0].Id);
+                    Assert.Equal(id, revisions[1].Id);
                     Assert.Equal(10, revisions[0].PayRate);
                     Assert.Equal(20, revisions[1].PayRate);
 
@@ -199,12 +230,14 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.False(version1Temporal.Deleted);
                     Assert.Equal(effectiveDate1, version1Temporal.EffectiveStart);
                     Assert.Equal(effectiveDate2, version1Temporal.EffectiveUntil);
+                    Assert.Equal(1, version1Temporal.RevisionNumber);
 
                     var version2Temporal = session.Advanced.GetTemporalMetadataFor(revisions[1]);
                     Assert.Equal(TemporalStatus.Revision, version2Temporal.Status);
                     Assert.False(version2Temporal.Deleted);
                     Assert.Equal(effectiveDate2, version2Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version2Temporal.EffectiveUntil);
+                    Assert.Equal(2, version2Temporal.RevisionNumber);
                 }
             }
         }
@@ -311,9 +344,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
                     Assert.Equal(3, revisions.Length);
 
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 1, revisions[0].Id);
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 2, revisions[1].Id);
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 3, revisions[2].Id);
+                    Assert.Equal(id, revisions[0].Id);
+                    Assert.Equal(id, revisions[1].Id);
+                    Assert.Equal(id, revisions[2].Id);
                     Assert.Equal(10, revisions[0].PayRate);
                     Assert.Equal(20, revisions[1].PayRate);
                     Assert.Equal(30, revisions[2].PayRate);
@@ -323,18 +356,21 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.False(version1Temporal.Deleted);
                     Assert.Equal(effectiveDate1, version1Temporal.EffectiveStart);
                     Assert.Equal(effectiveDate2, version1Temporal.EffectiveUntil);
+                    Assert.Equal(1, version1Temporal.RevisionNumber);
 
                     var version2Temporal = session.Advanced.GetTemporalMetadataFor(revisions[1]);
                     Assert.Equal(TemporalStatus.Revision, version2Temporal.Status);
                     Assert.False(version2Temporal.Deleted);
                     Assert.Equal(effectiveDate2, version2Temporal.EffectiveStart);
                     Assert.Equal(effectiveDate3, version2Temporal.EffectiveUntil);
+                    Assert.Equal(2, version2Temporal.RevisionNumber);
 
                     var version3Temporal = session.Advanced.GetTemporalMetadataFor(revisions[2]);
                     Assert.Equal(TemporalStatus.Revision, version3Temporal.Status);
                     Assert.False(version3Temporal.Deleted);
                     Assert.Equal(effectiveDate3, version3Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version3Temporal.EffectiveUntil);
+                    Assert.Equal(3, version3Temporal.RevisionNumber);
                 }
             }
         }
@@ -389,9 +425,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
                     Assert.Equal(3, revisions.Length);
 
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 1, revisions[0].Id);
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 2, revisions[1].Id);
-                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 3, revisions[2].Id);
+                    Assert.Equal(id, revisions[0].Id);
+                    Assert.Equal(id, revisions[1].Id);
+                    Assert.Equal(id, revisions[2].Id);
                     Assert.Equal(10, revisions[0].PayRate);
                     Assert.Equal(20, revisions[1].PayRate);
                     Assert.Equal(30, revisions[2].PayRate);
@@ -401,6 +437,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.False(version1Temporal.Deleted);
                     Assert.Equal(effectiveDate1, version1Temporal.EffectiveStart);
                     Assert.Equal(effectiveDate3, version1Temporal.EffectiveUntil);
+                    Assert.Equal(1, version1Temporal.RevisionNumber);
 
                     // the middle one now is an artifact
                     var version2Temporal = session.Advanced.GetTemporalMetadataFor(revisions[1]);
@@ -408,12 +445,14 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.False(version2Temporal.Deleted);
                     Assert.Equal(effectiveDate2, version2Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version2Temporal.EffectiveUntil);
+                    Assert.Equal(2, version2Temporal.RevisionNumber);
 
                     var version3Temporal = session.Advanced.GetTemporalMetadataFor(revisions[2]);
                     Assert.Equal(TemporalStatus.Revision, version3Temporal.Status);
                     Assert.False(version3Temporal.Deleted);
                     Assert.Equal(effectiveDate3, version3Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version3Temporal.EffectiveUntil);
+                    Assert.Equal(3, version3Temporal.RevisionNumber);
 
                     //TODO: Check temporal index to ensure artifact isn't considered
                 }

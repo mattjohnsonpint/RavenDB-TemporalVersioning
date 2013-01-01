@@ -1,0 +1,5 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=EDCF1C28F9B1D5449CDBEE0249C3207E/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=EDCF1C28F9B1D5449CDBEE0249C3207E/AbsolutePath/@EntryValue">C:\dev\RavenDB-TemporalVersioning\Raven.Bundles.TemporalVersioning.sln.DotSettings</s:String>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileEDCF1C28F9B1D5449CDBEE0249C3207E/@KeyIndexDefined">True</s:Boolean>
+	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileEDCF1C28F9B1D5449CDBEE0249C3207E/RelativePriority/@EntryValue">1</s:Double></wpf:ResourceDictionary>

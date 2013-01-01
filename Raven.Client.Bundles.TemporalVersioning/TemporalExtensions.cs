@@ -3,6 +3,8 @@ using System.Linq;
 using Raven.Abstractions.Data;
 using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
+using Raven.Client.Linq;
+using Raven.Client.Listeners;
 
 namespace Raven.Client.Bundles.TemporalVersioning
 {
@@ -36,11 +38,10 @@ namespace Raven.Client.Bundles.TemporalVersioning
         private static void ConfigureTemporalVersioning(this IAdvancedDocumentSessionOperations session, bool enabled, string entityName)
         {
             var inMemoryDocumentSessionOperations = ((InMemoryDocumentSessionOperations) session);
-            var configuration = new TemporalVersioningConfiguration
-                {
-                    Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
-                    Enabled = enabled
-                };
+            var configuration = new TemporalVersioningConfiguration {
+                                                                        Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
+                                                                        Enabled = enabled
+                                                                    };
             inMemoryDocumentSessionOperations.Store(configuration);
         }
 
@@ -64,13 +65,13 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         public static ISyncTemporalSessionOperation Effective(this IDocumentSession session, DateTimeOffset effectiveDate)
         {
-            TemporalDeleteListener.Register(session);
             return new TemporalSessionOperation(session, effectiveDate);
         }
 
-        public static ISyncTemporalSessionOperation EffectiveNow(this IDocumentSession session)
+        public static IDocumentQueryCustomization DisableTemporalFiltering(this IDocumentQueryCustomization customization)
         {
-            return session.Effective(DateTimeOffset.UtcNow);
+            // this gets stripped out later by the listener
+            return customization.Include("__TemporalFilteringDisabled__");
         }
 
         public static TemporalMetadata GetTemporalMetadataFor<T>(this ISyncAdvancedSessionOperation session, T instance)
@@ -111,5 +112,17 @@ namespace Raven.Client.Bundles.TemporalVersioning
                 session.SaveChanges();
             }
         }
+
+        public static void InitializeTemporalVersioning(this DocumentStoreBase documentStore)
+        {
+            var listener = new TemporalVersioningListener(documentStore);
+            documentStore.RegisterListener((IDocumentQueryListener) listener);
+            documentStore.RegisterListener((IDocumentDeleteListener) listener);
+            documentStore.RegisterListener((IDocumentConversionListener) listener);
+        }
+
+        
+
+        
     }
 }

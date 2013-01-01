@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Raven.Abstractions;
 using Raven.Bundles.Tests.TemporalVersioning.Entities;
 using Raven.Bundles.Tests.TemporalVersioning.Indexes;
 using Raven.Client.Bundles.TemporalVersioning;
@@ -61,7 +62,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var result = session.Query<Employees_TemporalCount.Result, Employees_TemporalCount>()
                                         .Customize(x => x.WaitForNonStaleResults())
-                                        .Where(x => x.Effective <= DateTime.UtcNow)
+                                        .Where(x => x.Effective <= SystemTime.UtcNow)
                                         .ToList().Last();
 
                     Assert.Equal(2, result.Count);

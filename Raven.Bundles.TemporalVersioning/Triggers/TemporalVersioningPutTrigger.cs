@@ -25,12 +25,14 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             if (!Database.IsTemporalVersioningEnabled(key, metadata))
                 return VetoResult.Allowed;
 
+            // Don't allow modifications to revision documents
             if (key.Contains(TemporalConstants.TemporalKeySeparator))
                 return VetoResult.Deny("Modifying an existing temporal revision directly is not allowed.");
 
+            // If no effective date was passed in, use now.
             var temporal = metadata.GetTemporalMetadata();
             if (!temporal.Effective.HasValue)
-                return VetoResult.Deny("When storing a new temporal revision, the effective date must be set.");
+                temporal.Effective = SystemTime.UtcNow;
 
             return VetoResult.Allowed;
         }

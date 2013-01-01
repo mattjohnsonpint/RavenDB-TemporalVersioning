@@ -31,25 +31,21 @@ namespace Raven.Bundles.TemporalVersioning
             // Don't ever version raven system documents.
             if (key.StartsWith("Raven/", StringComparison.InvariantCultureIgnoreCase))
                 return false;
+
+            // Don't version this one from the test helpers either.
+            if (key == "Pls Delete Me")
+                return false;
             
             var temporalVersioningConfiguration = database.GetTemporalVersioningConfiguration(metadata);
-            return temporalVersioningConfiguration != null && temporalVersioningConfiguration.Enabled &&
-                   metadata.GetTemporalMetadata().Status != TemporalStatus.NonTemporal;
+            return temporalVersioningConfiguration != null && temporalVersioningConfiguration.Enabled;
         }
         
         public static void SetDocumentMetadata(this DocumentDatabase database, string key, TransactionInformation transactionInformation, string metadataName,
                                                  RavenJToken metadataValue)
         {
-            // When RavenDB-747 is resolved, replace the implementation with the commented one.
-            // http://issues.hibernatingrhinos.com/issue/RavenDB-747
-
-            //var metadata = database.GetDocumentMetadata(key, transactionInformation).Metadata;
-            //metadata[metadataName] = metadataValue;
-            //database.PutDocumentMetadata(key, metadata);
-
-            var doc = database.Get(key, transactionInformation);
-            doc.Metadata[metadataName] = metadataValue;
-            database.Put(key, null, doc.DataAsJson, doc.Metadata, transactionInformation);
+            var metadata = database.GetDocumentMetadata(key, transactionInformation).Metadata;
+            metadata[metadataName] = metadataValue;
+            database.PutDocumentMetadata(key, metadata);
         }
 
         public static void WaitForIndexToBecomeNonStale(this DocumentDatabase database, string name, DateTime? cutOff, Guid? cutoffEtag)

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
@@ -11,34 +9,15 @@ namespace Raven.Client.Bundles.TemporalVersioning
 {
     internal class TemporalDeleteListener : IDocumentDeleteListener
     {
-        private static readonly object Padlock = new object();
-        private static readonly FieldInfo DocumentStoreListenersFieldInfo;
-
-        static TemporalDeleteListener()
-        {
-            // gee I wish this was public!
-            DocumentStoreListenersFieldInfo = typeof(DocumentStoreBase).GetField("listeners", BindingFlags.NonPublic | BindingFlags.Instance);
-        }
-
-        internal static void Register(IDocumentSession session)
-        {
-            ThreadLocalSession.Value = session;
-            EnsureRegistered((DocumentStoreBase) session.Advanced.DocumentStore);
-        }
-
-        private static void EnsureRegistered(DocumentStoreBase documentStore)
-        {
-            lock (Padlock)
-            {
-                var listeners = (DocumentSessionListeners) DocumentStoreListenersFieldInfo.GetValue(documentStore);
-                if (!listeners.DeleteListeners.OfType<TemporalDeleteListener>().Any())
-                    documentStore.RegisterListener(new TemporalDeleteListener());
-            }
-        }
-
-        private TemporalDeleteListener() { }
-
         private static readonly ThreadLocal<IDocumentSession> ThreadLocalSession = new ThreadLocal<IDocumentSession>();
+
+        internal TemporalDeleteListener(DocumentStoreBase documentStore)
+        {
+            documentStore.SessionCreatedInternal += session =>
+                {
+                    ThreadLocalSession.Value = (IDocumentSession) session;
+                };
+        }
 
         public void BeforeDelete(string key, object entityInstance, RavenJObject metadata)
         {

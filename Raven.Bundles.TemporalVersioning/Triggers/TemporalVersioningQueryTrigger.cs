@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Globalization;
 using System.Linq;
 using Raven.Abstractions.Data;
 using Raven.Bundles.TemporalVersioning.Common;
@@ -23,13 +24,14 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // If an effective date was passed in, then use it.
-            DateTimeOffset effectiveDate;
-            var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.EffectiveDateHeader];
-            if (headerValue == null || !DateTimeOffset.TryParse(headerValue, out effectiveDate))
+            DateTime effectiveDate;
+            var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.TemporalEffectiveDate];
+            if (headerValue == null || !DateTime.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
             {
                 // If no effective data passed, return as stored.
                 return ReadVetoResult.Allowed;
             }
+            effectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
 
             // Return the requested effective date in the metadata.
             var temporal = metadata.GetTemporalMetadata();
@@ -62,8 +64,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             // Send back the revision number
             temporal.RevisionNumber = int.Parse(key.Split('/').Last());
 
-            // Return the document id, not the revision id
-            metadata["@id"] = key.Substring(0, key.IndexOf(TemporalConstants.TemporalKeySeparator, StringComparison.Ordinal));
+            // When we filtered by effective date, return the document id instead of the revision id
+            if (temporal.Effective.HasValue)
+                metadata["@id"] = key.Substring(0, key.IndexOf(TemporalConstants.TemporalKeySeparator, StringComparison.Ordinal));
         }
     }
 }

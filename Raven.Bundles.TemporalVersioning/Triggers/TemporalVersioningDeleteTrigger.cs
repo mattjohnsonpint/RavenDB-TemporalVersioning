@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Globalization;
 using System.Threading;
 using Raven.Abstractions;
 using Raven.Abstractions.Data;
@@ -35,11 +36,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                     return VetoResult.Deny("Deleting an existing temporal revision directly is not allowed.");
 
                 // Get the effective date of the delete from a header since we couldn't pass metadata for the delete.
-                DateTimeOffset effectiveDate;
-                var header = string.Format("{0}-{1}", TemporalConstants.EffectiveDateHeader, key.Replace('/', '-'));
+                DateTime effectiveDate;
+                var header = string.Format("{0}-{1}", TemporalConstants.TemporalEffectiveDate, key.Replace('/', '-'));
                 var headerValue = CurrentOperationContext.Headers.Value[header];
-                if (headerValue == null || !DateTimeOffset.TryParse(headerValue, out effectiveDate))
+                if (headerValue == null || !DateTime.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
                     return VetoResult.Deny("When deleting a temporal revision, the effective date must be passed in a header.");
+	            effectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
 
                 // The deleted revision will be effective forever
                 var temporal = document.Metadata.GetTemporalMetadata();

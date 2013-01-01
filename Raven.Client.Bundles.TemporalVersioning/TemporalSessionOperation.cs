@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Linq.Expressions;
 using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
@@ -49,23 +48,26 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         #region Query
 
-        public IRavenQueryable<T> Query<T>(string indexName)
-        {
-            _headers[TemporalConstants.EffectiveDateHeader] = _effectiveDate.ToString("o");
-            return _session.Query<T>(indexName);
-        }
-
         public IRavenQueryable<T> Query<T>()
         {
-            _headers[TemporalConstants.EffectiveDateHeader] = _effectiveDate.ToString("o");
-            return _session.Query<T>();
+            return _session.Query<T>().Customize(IncludeTemporalEffectiveDateOnQuery());
+        }
+
+        public IRavenQueryable<T> Query<T>(string indexName)
+        {
+            return _session.Query<T>(indexName).Customize(IncludeTemporalEffectiveDateOnQuery());
         }
 
         public IRavenQueryable<T> Query<T, TIndexCreator>()
             where TIndexCreator : AbstractIndexCreationTask, new()
         {
-            _headers[TemporalConstants.EffectiveDateHeader] = _effectiveDate.ToString("o");
-            return _session.Query<T, TIndexCreator>();
+            return _session.Query<T, TIndexCreator>().Customize(IncludeTemporalEffectiveDateOnQuery());
+        }
+
+        private Action<IDocumentQueryCustomization> IncludeTemporalEffectiveDateOnQuery()
+        {
+            // This gets stripped out later by the listener
+            return x => x.Include("__TemporalEffectiveDate__=" + _effectiveDate.UtcDateTime.ToString("o"));
         }
 
         #endregion
@@ -119,7 +121,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
         {
             var temporal = _session.Advanced.GetTemporalMetadataFor(entity);
             temporal.Status = TemporalStatus.Revision;
-            temporal.Effective = _effectiveDate;
+            temporal.Effective = _effectiveDate.UtcDateTime;
         }
 
         #endregion
@@ -127,9 +129,9 @@ namespace Raven.Client.Bundles.TemporalVersioning
         internal T TemporalLoad<T>(Func<T> loadOperation)
         {
             // perform the load operation, passing the temporal effective date header just for this operation
-            _headers.Add(TemporalConstants.EffectiveDateHeader, _effectiveDate.ToString("o"));
+            _headers.Add(TemporalConstants.TemporalEffectiveDate, _effectiveDate.UtcDateTime.ToString("o"));
             var result = loadOperation();
-            _headers.Remove(TemporalConstants.EffectiveDateHeader);
+            _headers.Remove(TemporalConstants.TemporalEffectiveDate);
 
             return result;
         }

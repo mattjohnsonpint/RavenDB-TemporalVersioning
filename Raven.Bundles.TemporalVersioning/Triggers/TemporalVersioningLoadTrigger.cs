@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Raven.Abstractions;
 using Raven.Abstractions.Data;
 using Raven.Abstractions.Logging;
 using Raven.Bundles.TemporalVersioning.Common;
@@ -37,14 +39,15 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // If an effective date was passed in, then use it.
-            DateTimeOffset effectiveDate;
-            var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.EffectiveDateHeader];
-            if (headerValue == null || !DateTimeOffset.TryParse(headerValue, out effectiveDate))
+            DateTime effectiveDate;
+            var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.TemporalEffectiveDate];
+            if (headerValue == null || !DateTime.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
             {
                 // If no effective data passed, return current data, as stored, effective now.
-                temporal.Effective = DateTimeOffset.UtcNow;
+                temporal.Effective = SystemTime.UtcNow;
                 return ReadVetoResult.Allowed;
             }
+			effectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
 
             // Return the requested effective date in the metadata.
             temporal.Effective = effectiveDate;
@@ -75,6 +78,13 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
         public override void OnRead(string key, RavenJObject document, RavenJObject metadata, ReadOperation operation,
                                     TransactionInformation transactionInformation)
         {
+            // If we're loading a revision directly, make sure we have set the rev number in the metadata
+            if (key != null && key.Contains(TemporalConstants.TemporalKeySeparator))
+            {
+                var temporal = metadata.GetTemporalMetadata();
+                temporal.RevisionNumber = int.Parse(key.Split('/').Last());
+            }
+
             // If we didn't get a new effective version key above, just return
             var evKey = _effectiveVersionKey.Value;
             if (evKey == null)
@@ -97,7 +107,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 // Replace the resulting metadata
                 foreach (var prop in metadata.Keys)
                 {
-                    if (prop != TemporalConstants.RavenDocumentTemporalEffective)
+                    if (prop != TemporalConstants.TemporalEffectiveDate)
                         metadata.Remove(prop);
                 }
                 var evMetadata = effectiveVersion.Metadata;

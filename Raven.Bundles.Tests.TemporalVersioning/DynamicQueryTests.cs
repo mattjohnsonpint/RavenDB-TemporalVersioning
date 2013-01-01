@@ -38,11 +38,10 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 // Query current data and check the results
                 using (var session = documentStore.OpenSession())
                 {
-                    var employees = session.EffectiveNow()
-                                           .Query<Employee>()
-                                           .Customize(x => x.WaitForNonStaleResults())
-                                           .Where(x => x.Name == "John")
-                                           .ToList();
+	                var employees = session.Query<Employee>()
+	                                       .Customize(x => x.WaitForNonStaleResults())
+	                                       .Where(x => x.Name == "John")
+	                                       .ToList();
 
                     Assert.Equal(1, employees.Count);
                     var employee = employees.Single();
