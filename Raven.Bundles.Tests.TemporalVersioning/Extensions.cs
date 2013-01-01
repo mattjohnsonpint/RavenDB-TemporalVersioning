@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.Composition.Hosting;
 using Raven.Bundles.TemporalVersioning;
+using Raven.Client;
 using Raven.Client.Bundles.TemporalVersioning;
 using Raven.Client.Embedded;
+using Raven.Client.Linq;
 using Raven.Tests.Helpers;
 
 namespace Raven.Bundles.Tests.TemporalVersioning
@@ -24,6 +26,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning
             }
 
             return documentStore;
+        }
+
+        public static IRavenQueryable<T> OrderBy<T>(this IRavenQueryable<T> source, string field)
+        {
+            return source.Customize(x => ((IDocumentQuery<T>) x).OrderBy(field));
         }
     }
 }

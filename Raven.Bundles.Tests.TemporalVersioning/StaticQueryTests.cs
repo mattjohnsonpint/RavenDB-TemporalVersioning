@@ -65,7 +65,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var revisions = session.Query<Employee, Employees_RevisionsByName>()
                                            .Customize(x => x.WaitForNonStaleResults().DisableTemporalFiltering())
-                                           .As<ITemporalInfo>().OrderBy(x => x.Effective).As<Employee>()
+                                           .OrderBy("Effective")
                                            .Where(x => x.Name == "John")
                                            .ToList();
 
@@ -128,11 +128,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.Equal(2, temporal.RevisionNumber);
                 }
             }
-        }
-
-        private interface ITemporalInfo
-        {
-            DateTimeOffset Effective { get; set; }
         }
     }
 }
