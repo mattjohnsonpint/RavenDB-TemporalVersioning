@@ -19,7 +19,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
             /*
              *   Temporal Map/Reduce is HARD.  It requires a "sum of deltas" pattern, which is slightly different than a regular summation.
              *   We will map the CHANGES to the data at each time point.  We can reduce those changes per distinct date, but that still gives us changes, not totals.
-             *   To get totals, we have to transform the results to aggregate all changes from the begining of the set up to (and including) the date in question.
+             *   To get totals, we have to transform the results to aggregate all changes from the beginning of the set up to (and including) the date in question.
              *
              *   Simply summing all items will not work - it would always return zero, since all data comes into existence and eventually goes out of existence.
              *   Often this is at DateTimeOffset.MaxValue, but it does indeed terminate.
@@ -74,7 +74,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
 
             // TODO: Both of these work, but which is faster?
 
-            // TODO: Bigger problem: Even though we are summing things here, we still have to return all results when querying or dates get skipped and the toals are wrong.
+            // TODO: Bigger problem: Even though we are summing things here, we still have to return all results when querying or dates get skipped and the totals are wrong.
             //       We might as well be doing all of it client-side.  Really need to find a way to get it all in the reduce and avoid a transform.
 
             //TransformResults = (database, results) => from result in results.ToList()

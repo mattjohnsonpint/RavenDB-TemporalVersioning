@@ -77,7 +77,7 @@ namespace Raven.Bundles.TemporalVersioning
 
                     if (stopwatch.Elapsed >= TimeSpan.FromSeconds(30))
                         throw new TimeoutException(
-                            string.Format("Over 30 seconds have elpased while waiting for the \"{0}\" index to catch up.", name));
+                            string.Format("Over 30 seconds have elapsed while waiting for the \"{0}\" index to catch up.", name));
 
                     Thread.Sleep(100);
                 }
