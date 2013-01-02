@@ -318,7 +318,7 @@ When current data changes, either by putting a new revision or by the Temporal A
 
 Temporal Map/Reduce is needed if you want to be able to get totals at an arbitrary point in time.  This is a difficult problem to solve, and requires an advanced pattern that is currently difficult to express in RavenDB.  Refer to the `Employees_TemporalCount` index in the unit tests for an example of how it can be done.  Also be sure to look at the way that this data must be queried in order to get valid results.
 
-There may be ways to express indexes more easily if one can predetermine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  Unfortunately, this would probably require use of `Enumerable.Range` in the index map, which is currently unsupported in Raven.  When issue [RavenDB-757](http://issues.hibernatingrhinos.com/issue/RavenDB-757) is resolved, the documentation and tests will be updated with an example.
+There may be ways to express indexes more easily if one can predetermine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  This would probably require use of `Enumerable.Range` in the index map.  An example of this technique is forthcoming.
 
 ## Getting an Audit Trail
 
