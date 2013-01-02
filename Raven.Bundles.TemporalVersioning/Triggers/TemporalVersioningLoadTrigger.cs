@@ -32,12 +32,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // Don't do anything if temporal versioning is inactive for this document type
-            using (Database.DisableAllTriggersForCurrentThread())
-            {
-                _temporalVersioningEnabled.Value = Database.IsTemporalVersioningEnabled(key, metadata);
-                if (!_temporalVersioningEnabled.Value)
-                    return ReadVetoResult.Allowed;
-            }
+            _temporalVersioningEnabled.Value = Database.IsTemporalVersioningEnabled(key, metadata);
+            if (!_temporalVersioningEnabled.Value)
+                return ReadVetoResult.Allowed;
 
             // Only operate on current temporal documents
             var temporal = metadata.GetTemporalMetadata();

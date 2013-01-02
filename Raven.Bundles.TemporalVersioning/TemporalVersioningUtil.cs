@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,18 +13,22 @@ namespace Raven.Bundles.TemporalVersioning
 {
     internal static class TemporalVersioningUtil
     {
-        public static TemporalVersioningConfiguration GetTemporalVersioningConfiguration(this DocumentDatabase database, RavenJObject metadata)
+        public static readonly ConcurrentDictionary<string, bool> ConfigCache = new ConcurrentDictionary<string, bool>();
+
+        public static TemporalVersioningConfiguration GetTemporalVersioningConfiguration(this DocumentDatabase database, string entityName)
         {
-            JsonDocument doc = null;
+            using (database.DisableAllTriggersForCurrentThread())
+            {
+                JsonDocument doc = null;
 
-            var entityName = metadata.Value<string>(Constants.RavenEntityName);
-            if (entityName != null)
-                doc = database.Get(string.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName), null);
+                if (entityName != null)
+                    doc = database.Get(string.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName), null);
 
-            if (doc == null)
-                doc = database.Get(string.Format("Raven/{0}/DefaultConfiguration", TemporalConstants.BundleName), null);
+                if (doc == null)
+                    doc = database.Get(string.Format("Raven/{0}/DefaultConfiguration", TemporalConstants.BundleName), null);
 
-            return doc == null ? null : doc.DataAsJson.JsonDeserialization<TemporalVersioningConfiguration>();
+                return doc == null ? null : doc.DataAsJson.JsonDeserialization<TemporalVersioningConfiguration>();
+            }
         }
 
         public static bool IsTemporalVersioningEnabled(this DocumentDatabase database, string key, RavenJObject metadata)
@@ -35,9 +40,18 @@ namespace Raven.Bundles.TemporalVersioning
             // Don't version this one from the test helpers either.
             if (key == "Pls Delete Me")
                 return false;
-            
-            var temporalVersioningConfiguration = database.GetTemporalVersioningConfiguration(metadata);
-            return temporalVersioningConfiguration != null && temporalVersioningConfiguration.Enabled;
+
+            var entityName = metadata.Value<string>(Constants.RavenEntityName);
+
+            bool enabled;
+            if (ConfigCache.TryGetValue(entityName, out enabled))
+                return enabled;
+
+            var temporalVersioningConfiguration = database.GetTemporalVersioningConfiguration(entityName);
+            enabled = temporalVersioningConfiguration != null && temporalVersioningConfiguration.Enabled;
+            ConfigCache.TryAdd(entityName, enabled);
+
+            return enabled;
         }
 
         public static void SetDocumentMetadata(this DocumentDatabase database, string key, TransactionInformation transactionInformation, string metadataName,

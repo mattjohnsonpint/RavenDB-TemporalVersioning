@@ -20,11 +20,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // Don't do anything if temporal versioning is inactive for this document type
-            using (Database.DisableAllTriggersForCurrentThread())
-            {
-                if (!Database.IsTemporalVersioningEnabled(key, metadata))
-                    return ReadVetoResult.Allowed;
-            }
+            if (!Database.IsTemporalVersioningEnabled(key, metadata))
+                return ReadVetoResult.Allowed;
 
             // If an effective date was passed in, then use it.
             DateTime effectiveDate;
@@ -56,11 +53,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return;
 
             // Don't do anything when temporal versioning is not enabled
-            using (Database.DisableAllTriggersForCurrentThread())
-            {
-                if (!Database.IsTemporalVersioningEnabled(key, metadata))
-                    return;
-            }
+            if (!Database.IsTemporalVersioningEnabled(key, metadata))
+                return;
 
             // Only operate on temporal revisions
             var temporal = metadata.GetTemporalMetadata();

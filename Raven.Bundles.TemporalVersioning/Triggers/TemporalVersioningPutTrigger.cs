@@ -22,11 +22,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             _originalDocument.Value = null;
 
             // Don't do anything if temporal versioning is inactive for this document type
-            using (Database.DisableAllTriggersForCurrentThread())
-            {
-                if (!Database.IsTemporalVersioningEnabled(key, metadata))
-                    return VetoResult.Allowed;
-            }
+            if (!Database.IsTemporalVersioningEnabled(key, metadata))
+                return VetoResult.Allowed;
 
             // Don't allow modifications to revision documents
             if (key.Contains(TemporalConstants.TemporalKeySeparator))
@@ -42,11 +39,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         public override void OnPut(string key, RavenJObject document, RavenJObject metadata, TransactionInformation transactionInformation)
         {
-            using (Database.DisableAllTriggersForCurrentThread())
-            {
-                if (!Database.IsTemporalVersioningEnabled(key, metadata))
-                    return;
-            }
+            // Clear the config cache any time a new configuration is written.
+            if (key != null && key.StartsWith("Raven/" + TemporalConstants.BundleName + "/"))
+                TemporalVersioningUtil.ConfigCache.Clear();
+
+            if (!Database.IsTemporalVersioningEnabled(key, metadata))
+                return;
 
             using (Database.DisableAllTriggersForCurrentThread())
             {
@@ -54,7 +52,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 var temporal = metadata.GetTemporalMetadata();
                 temporal.EffectiveStart = temporal.Effective;
                 temporal.EffectiveUntil = DateTimeOffset.MaxValue;
-                
+
                 // See if the revision we're saving is current.
                 var now = SystemTime.UtcNow;
                 var current = temporal.Effective <= now;
