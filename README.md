@@ -10,11 +10,11 @@ The difference between this and Raven's official "Versioning Bundle" is that pas
 
 ### Manual Installation
 
-Copy this files to the Plugins folder where your RavenDB Server is installed:
+Copy this file to the Plugins folder where your RavenDB Server is installed:
 
 - Raven.Bundles.TemporalVersioning.dll
 
-Copy this files to your own solution and add a reference to it from your project(s).
+Copy this file to your own solution and add a reference to it from your project(s).
 
 - Raven.Client.Bundles.TemporalVersioning.dll
 
@@ -25,9 +25,20 @@ Install the following packages where appropriate:
 - [RavenDB.Bundles.TemporalVersioning](http://nuget.org/packages/RavenDB.Bundles.TemporalVersioning)
 - [RavenDB.Client.TemporalVersioning](http://nuget.org/packages/RavenDB.Client.TemporalVersioning)
 
-### Enabling the Bundle
 
-Like all RavenDB bundles, the Temporal Versioning bundle must be enabled on each database that you plan on using it.
+### Client Initialization
+
+You **must** initialize the Temporal Versioning client before using it.  This should occur once in your code, right after you initialize the document store.
+
+    // Initialize the document store as usual.
+    documentStore.Initialize();
+
+    // Then initialize the temporal versioning client.
+    documentStore.InitializeTemporalVersioning();
+
+### Enabling the Server-Side Bundle
+
+Like most RavenDB bundles, the Temporal Versioning bundle must be enabled on each database that you plan on using it.
 
 ##### Enabling Temporal Versioning on a Standard Database
 
@@ -38,9 +49,9 @@ To make this easier from code, you can call the following extension method after
 	documentStore.ActivateTemporalVersioningBundle(databaseName);
 
 ##### Enabling Temporal Versioning on an Embedded Database
-If you are using an embedded RavenDB instance, you can enable the bundle with this code instead:
+If you are using an embedded RavenDB instance, there is no need to put the bundle in a plugins folder.  Simply add both the bundle and the client to your project, and register the bundle with this code instead:
 
-	documentStore.Configuration.Catalog.Catalogs.Add(new AssemblyCatalog(typeof(TemporalActivator).Assembly));
+    documentStore.Configuration.RegisterTemporalVersioningBundle();
 
 # Configuration
 
@@ -81,15 +92,12 @@ It doesn't matter what offset you provide, as things will be converted to UTC wh
 
 ### Temporal Session Operations
 
-There are two extension methods added to Raven's `IDocumentSession` interface that are used to access temporal versions of the common session operations.  (Currently only synchronous sessions are supported)
+Most of the time, you are interested in working with current data.  You do *not* need to specify anything special for this.  Just work with sessions as you normally would.
+
+Sometimes you may want to work with past or future data.  For this, there is an extension method added to Raven's `IDocumentSession` interface that is used to access temporal versions of the common session operations.  (Currently only synchronous sessions are supported)
 
     // access data at a particular moment
     session.Effective(dto).Whatever()
-
-    // access current data
-    session.EffectiveNow().Whatever()
-
-By providing an effective date, revisions of the data can be made in the past, present, or future.  Both methods have the same effect. `EffectiveNow()` is just a convenience method that wraps `Effective(DateTimeOffset.UtcNow)` to make common operations less cumbersome.
 
 The methods available from here are the same as you're already used to with raven synchronous session methods, such as `.Store()`, `.Delete()`, `.Load()`, and `.Query()`.
 
@@ -112,7 +120,7 @@ Perhaps I then add a revision 3 that deletes the document at 6:00.  There are no
 ##### Storing a new document
 
     // most of the time, we store current data
-    session.EffectiveNow().Store(foo);
+    session.Store(foo);
     session.SaveChanges();
 
     // sometimes, we might store past or future data
@@ -121,11 +129,12 @@ Perhaps I then add a revision 3 that deletes the document at 6:00.  There are no
 
 #### Loading a document
 
-    // we can still use a non-temporal load to get at "current" data
+    // most of the time, we just load current data
     var foo = session.Load<Foo>("foos/1");
 
     // this would have the same effect, but it's extraneous
-    var foo = session.EffectiveNow().Load<Foo>("foos/1")
+    // you should avoid using .Effective() for current data
+    var foo = session.Effective(DateTimeOffset.UtcNow).Load<Foo>("foos/1")
 
     // we certainly might want to load as of some past or future date
     var foo = session.Effective(dto).Load<Foo>("foos/1")
@@ -170,8 +179,8 @@ There are many different ways to query temporal data, some are simple, and some 
 
 ##### Querying data dynamically
 
-    // query as of now
-    var results = session.EffectiveNow().Query<Foo>().Where(x=> x.Bar == 123);
+    // query current data
+    var results = session.Query<Foo>().Where(x=> x.Bar == 123);
 
     // query at some past or future date
     var results = session.Effective(dto).Query<Foo>().Where(x=> x.Bar == 123);
@@ -210,7 +219,7 @@ If you might be querying for current data sometimes, and non-current data at oth
     }
 
     // Returns current results, because the bundle filtered the results to those that are effective now.
-    var results = session.EffectiveNow().Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
+    var results = session.Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
 
     // Returns past or future results, because the bundle filtered the results to those that matched the effective date we asked for.
     var results = session.Effective(dto).Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
