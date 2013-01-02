@@ -68,7 +68,12 @@ namespace Raven.Bundles.TemporalVersioning
             // Because we are in an trigger, the index stats do not get updated if we stay in the same thread.
             // That leads to a condition where the index is not stale, but we still think it is.
             // Waiting in a task on a separate thread works around this problem.
+            //
+            // Per Oren - this is by design because of esent snapshot isolation.
+            // It does work with Munin in Raven >= 2.0.2158, but having it on a separate thread is still ok.
+            //
             // http://issues.hibernatingrhinos.com/issue/RavenDB-708
+            //
 
             var task = Task.Factory.StartNew(() =>
             {
