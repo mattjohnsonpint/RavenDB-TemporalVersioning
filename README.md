@@ -333,13 +333,13 @@ Consider the following three events.
     var dto = DateTimeOffset.Parse("2012-03-01T00:00:00Z")
     var foo = session.Effective(dto).Load("foos/1");
     foo.Bar = 456;
-    foo.SaveChanges();
+    session.SaveChanges();
 
     // Sometime later, we decide that the data should have been different effective Feb 1.
     var dto = DateTimeOffset.Parse("2012-02-01T00:00:00Z")
     var foo = session.Effective(dto).Load("foos/1");
     foo.Bar = 999;
-    foo.SaveChanges();
+    session.SaveChanges();
 
 We have made three changes, but the third change was effective *before* the second one.  So the second change (with bar=456) is no longer valid data.  It is an *artifact*.  If we query the data, we will never receive this revision.
 
