@@ -15,8 +15,5 @@
       <dependency id="RavenDB.Client" version="2.0.2170-Unstable" />
     </dependencies>
     <iconUrl>http://static.ravendb.net/logo-for-nuget.png</iconUrl>
-    <references>
-      <reference file="Raven.Client.Bundles.TemporalVersioning.dll" />
-    </references>
   </metadata>
 </package>
