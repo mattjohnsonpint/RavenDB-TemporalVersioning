@@ -39,6 +39,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         public override void OnPut(string key, RavenJObject document, RavenJObject metadata, TransactionInformation transactionInformation)
         {
+            if (key != null && key.StartsWith("Raven/" + TemporalConstants.BundleName + "/Raven/"))
+                throw new InvalidOperationException("Cannot version RavenDB system documents!");
+
             // Clear the config cache any time a new configuration is written.
             if (key != null && key.StartsWith("Raven/" + TemporalConstants.BundleName + "/"))
                 TemporalVersioningUtil.ConfigCache.Clear();
