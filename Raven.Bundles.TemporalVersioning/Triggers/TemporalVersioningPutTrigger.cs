@@ -22,8 +22,11 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             _originalDocument.Value = null;
 
             // Don't do anything if temporal versioning is inactive for this document type
-            if (!Database.IsTemporalVersioningEnabled(key, metadata))
-                return VetoResult.Allowed;
+            using (Database.DisableAllTriggersForCurrentThread())
+            {
+                if (!Database.IsTemporalVersioningEnabled(key, metadata))
+                    return VetoResult.Allowed;
+            }
 
             // Don't allow modifications to revision documents
             if (key.Contains(TemporalConstants.TemporalKeySeparator))
@@ -39,8 +42,11 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         public override void OnPut(string key, RavenJObject document, RavenJObject metadata, TransactionInformation transactionInformation)
         {
-            if (!Database.IsTemporalVersioningEnabled(key, metadata))
-                return;
+            using (Database.DisableAllTriggersForCurrentThread())
+            {
+                if (!Database.IsTemporalVersioningEnabled(key, metadata))
+                    return;
+            }
 
             using (Database.DisableAllTriggersForCurrentThread())
             {
