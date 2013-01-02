@@ -29,7 +29,7 @@ namespace Raven.Bundles.TemporalVersioning
         public static bool IsTemporalVersioningEnabled(this DocumentDatabase database, string key, RavenJObject metadata)
         {
             // Don't ever version raven system documents.
-            if (key.StartsWith("Raven/", StringComparison.InvariantCultureIgnoreCase))
+            if (key != null && key.StartsWith("Raven/", StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
             // Don't version this one from the test helpers either.
@@ -39,7 +39,7 @@ namespace Raven.Bundles.TemporalVersioning
             var temporalVersioningConfiguration = database.GetTemporalVersioningConfiguration(metadata);
             return temporalVersioningConfiguration != null && temporalVersioningConfiguration.Enabled;
         }
-        
+
         public static void SetDocumentMetadata(this DocumentDatabase database, string key, TransactionInformation transactionInformation, string metadataName,
                                                  RavenJToken metadataValue)
         {

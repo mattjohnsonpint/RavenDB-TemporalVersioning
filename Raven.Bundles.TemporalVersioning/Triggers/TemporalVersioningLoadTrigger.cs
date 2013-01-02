@@ -19,10 +19,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
         private readonly ILog _log = LogManager.GetCurrentClassLogger();
 
         private readonly ThreadLocal<string> _effectiveVersionKey = new ThreadLocal<string>();
+        private readonly ThreadLocal<bool> _temporalVersioningEnabled = new ThreadLocal<bool>();
 
         public override ReadVetoResult AllowRead(string key, RavenJObject metadata, ReadOperation operation, TransactionInformation transactionInformation)
         {
-            // always reset this
+            // always reset these
+            _temporalVersioningEnabled.Value = false;
             _effectiveVersionKey.Value = null;
 
             // This trigger is only for load operations
@@ -32,7 +34,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             // Don't do anything if temporal versioning is inactive for this document type
             using (Database.DisableAllTriggersForCurrentThread())
             {
-                if (!Database.IsTemporalVersioningEnabled(key, metadata))
+                _temporalVersioningEnabled.Value = Database.IsTemporalVersioningEnabled(key, metadata);
+                if (!_temporalVersioningEnabled.Value)
                     return ReadVetoResult.Allowed;
             }
 
@@ -50,7 +53,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 temporal.Effective = SystemTime.UtcNow;
                 return ReadVetoResult.Allowed;
             }
-			effectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
+            effectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
 
             // Return the requested effective date in the metadata.
             temporal.Effective = effectiveDate;
@@ -82,10 +85,23 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                                     TransactionInformation transactionInformation)
         {
             // If we're loading a revision directly, make sure we have set the rev number in the metadata
+            var temporal = metadata.GetTemporalMetadata();
             if (key != null && key.Contains(TemporalConstants.TemporalKeySeparator))
-            {
-                var temporal = metadata.GetTemporalMetadata();
                 temporal.RevisionNumber = int.Parse(key.Split('/').Last());
+
+            // Handle migration from nontemporal document
+            if (temporal.Status == TemporalStatus.NonTemporal && _temporalVersioningEnabled.Value)
+            {
+                // Rewrite the document temporally.  We specifically do NOT disable triggers on this put.
+                temporal.Effective = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+                Database.Put(key, null, new RavenJObject(document), new RavenJObject(metadata), transactionInformation);
+
+                // Fake out the current document for the return of this load.
+                temporal.Status = TemporalStatus.Current;
+                temporal.RevisionNumber = 1;
+                temporal.Effective = SystemTime.UtcNow;
+                temporal.EffectiveStart = DateTimeOffset.MinValue;
+                temporal.EffectiveUntil = DateTimeOffset.MaxValue;
             }
 
             // If we didn't get a new effective version key above, just return
@@ -118,7 +134,6 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                     metadata.Add(prop, evMetadata[prop]);
 
                 // Send back the version number also
-                var temporal = metadata.GetTemporalMetadata();
                 temporal.RevisionNumber = int.Parse(evKey.Split('/').Last());
             }
         }
