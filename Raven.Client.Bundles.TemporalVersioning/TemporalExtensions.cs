@@ -119,9 +119,5 @@ namespace Raven.Client.Bundles.TemporalVersioning
             documentStore.RegisterListener((IDocumentDeleteListener) listener);
             documentStore.RegisterListener((IDocumentConversionListener) listener);
         }
-
-        
-
-        
     }
 }

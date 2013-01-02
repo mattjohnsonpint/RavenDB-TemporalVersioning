@@ -55,6 +55,7 @@
     <Compile Include="Common\TemporalMetadata.cs" />
     <Compile Include="Common\TemporalStatus.cs" />
     <Compile Include="Common\TemporalVersioningConfiguration.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="TemporalActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TemporalRevisionsIndex.cs" />

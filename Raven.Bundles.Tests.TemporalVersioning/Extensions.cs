@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Composition.Hosting;
-using Raven.Bundles.TemporalVersioning;
+﻿using Raven.Bundles.TemporalVersioning;
 using Raven.Client;
 using Raven.Client.Bundles.TemporalVersioning;
 using Raven.Client.Embedded;
@@ -13,7 +12,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning
         public static EmbeddableDocumentStore GetTemporalDocumentStore(this RavenTestBase testclass)
         {
             var documentStore = new EmbeddableDocumentStore { RunInMemory = true };
-            documentStore.Configuration.Catalog.Catalogs.Add(new AssemblyCatalog(typeof(TemporalActivator).Assembly));
+            documentStore.Configuration.RegisterTemporalVersioningBundle();
             documentStore.Initialize();
             documentStore.InitializeTemporalVersioning();
 
