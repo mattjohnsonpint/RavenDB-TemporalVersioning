@@ -28,7 +28,8 @@ Install the following packages where appropriate:
 
 ### Client Initialization
 
-You **must** initialize the Temporal Versioning client before using it.  This should occur once in your code, right after you initialize the document store.
+You **must** initialize the Temporal Versioning client before using it.
+This should occur once in your code, right after you initialize the document store.
 
     // Initialize the document store as usual.
     documentStore.Initialize();
@@ -61,10 +62,7 @@ The bundle will first look for a document called `Raven/TemporalVersioning/Raven
 
 If there is no configuration document found, or if there is no `Raven-Entity-Name` metadata, it will then look for a document called `Raven/TemporalVersioning/DefaultConfiguration` and use its `Enabled` property.  This allows you to enable temporal versioning globally for all documents, rather than for each document type.  It is recommended that you do not enable temporal versioning globally unless you understand the full impact.  It is usually better turning it on only when needed.
 
-A few notes:
-
-- Raven system documents (any document having an id starting with `Raven/`) are never versioned.
-- **IMPORTANT** Temporal Versioning should be enabled before storing any documents of a particular type.  Enabling temporal versioning on existing documents is not currently supported, and will may delete your data.  (This will be supported in a future release.)
+Raven system documents (any document having an id starting with `Raven/`) can not be versioned.  The bundle will reject any attempt to configure versioning for a system document.
 
 To make this easier from code, you can use the following extension methods after you create your database:
 
@@ -73,6 +71,16 @@ To make this easier from code, you can use the following extension methods after
 
     // globally
     session.Advanced.ConfigureTemporalVersioningDefaults(true);
+
+##### Migrating to Temporal Versioning
+
+If you already have documents stored in your database before you enable temporal versioning for that document type, the documents will be *migrated* when first loaded.  The non-temporal document will be rewritten as a temporal document that was always effective (starting at `DateTimeOffset.MinValue`).
+
+The bundle does *not* convert all of your documents automatically.  If you want to ensure all documents are participating in indexes correctly, you need to go through your database and load each document at least once.
+
+#### Migrating away from Temporal Versioning
+
+If you decide to disable temporal versioning for one or more document types, The bundle will not make any changes to your data.  The existing "current" documents are immediately usable, but you may want to delete any temporal revision documents that exists so they don't interfere with your indexes.
 
 # Usage
 
