@@ -24,15 +24,14 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // If an effective date was passed in, then use it.
-            DateTime effectiveDate;
+            DateTimeOffset effectiveDate;
             var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.TemporalEffectiveDate];
-            if (headerValue == null || !DateTime.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
+            if (headerValue == null || !DateTimeOffset.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
             {
                 // If no effective data passed, return as stored.
                 return ReadVetoResult.Allowed;
             }
-            effectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
-
+            
             // Return the requested effective date in the metadata.
             var temporal = metadata.GetTemporalMetadata();
             temporal.Effective = effectiveDate;

@@ -42,16 +42,15 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // If an effective date was passed in, then use it.
-            DateTime effectiveDate;
+            DateTimeOffset effectiveDate;
             var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.TemporalEffectiveDate];
-            if (headerValue == null || !DateTime.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
+            if (headerValue == null || !DateTimeOffset.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
             {
                 // If no effective data passed, return current data, as stored, effective now.
                 temporal.Effective = SystemTime.UtcNow;
                 return ReadVetoResult.Allowed;
             }
-            effectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
-
+            
             // Return the requested effective date in the metadata.
             temporal.Effective = effectiveDate;
 
@@ -90,7 +89,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             if (temporal.Status == TemporalStatus.NonTemporal && _temporalVersioningEnabled.Value)
             {
                 // Rewrite the document temporally.  We specifically do NOT disable triggers on this put.
-                temporal.Effective = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+                temporal.Effective = DateTimeOffset.MinValue;
                 Database.Put(key, null, new RavenJObject(document), new RavenJObject(metadata), transactionInformation);
 
                 // Fake out the current document for the return of this load.

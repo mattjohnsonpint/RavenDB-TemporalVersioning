@@ -66,9 +66,9 @@ namespace Raven.Bundles.TemporalVersioning.Common
             set { _metadata[TemporalConstants.RavenDocumentTemporalPending] = value; }
         }
 
-        public DateTime? Effective
+        public DateTimeOffset? Effective
         {
-            get { return _metadata.Value<DateTime?>(TemporalConstants.TemporalEffectiveDate); }
+            get { return _metadata.Value<DateTimeOffset?>(TemporalConstants.TemporalEffectiveDate); }
             set
             {
                 const string key = TemporalConstants.TemporalEffectiveDate;
