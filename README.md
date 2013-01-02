@@ -140,12 +140,12 @@ Perhaps I then add a revision 3 that deletes the document at 6:00.  There are no
     // most of the time, we just load current data
     var foo = session.Load<Foo>("foos/1");
 
-    // this would have the same effect, but it's extraneous
-    // you should avoid using .Effective() for current data
-    var foo = session.Effective(DateTimeOffset.UtcNow).Load<Foo>("foos/1")
+    // sometimes, we might load past or future data
+    var foo = session.Effective(dto).Load<Foo>("foos/1");
 
-    // we certainly might want to load as of some past or future date
-    var foo = session.Effective(dto).Load<Foo>("foos/1")
+    // this would be valid, but it's extraneous
+    // you should avoid using .Effective() for current data
+    var foo = session.Effective(DateTimeOffset.UtcNow).Load<Foo>("foos/1");
 
 #### Updating a document
 
@@ -161,7 +161,7 @@ We can make changes to a document at any effective date.  If you don't specify o
     foo.Bar = 123;
     session.SaveChanges();
 
-It's important to realize that any change made to the document will be made effective as of the same date it was loaded for.
+It's important to realize that any change made to the document will be made effective as of the same date it was loaded for.  When you load a document, the bundle sets the requested effective date in a metadata value called `Temporal-Effective-Date`.  When changes are saved, it uses this as the effective date of the changes.  **It is not recommended to hold on to an object for an extended period because the effective date will be stale.  You should load the document, make your changes, and save them.** 
 
 #### Deleting a document
 
