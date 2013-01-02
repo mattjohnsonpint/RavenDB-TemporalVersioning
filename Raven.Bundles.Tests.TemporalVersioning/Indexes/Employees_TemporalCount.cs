@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Raven.Bundles.TemporalVersioning.Common;
 using Raven.Bundles.Tests.TemporalVersioning.Entities;
+using Raven.Client.Bundles.TemporalVersioning.Common;
 using Raven.Client.Indexes;
 
 namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
@@ -30,9 +30,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
 
             // Map a +1 on each Start date
             AddMap<Employee>(employees => from employee in employees
-                                          let status = MetadataFor(employee).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
-                                          let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalConstants.RavenDocumentTemporalEffectiveStart)
-                                          let deleted = MetadataFor(employee).Value<bool>(TemporalConstants.RavenDocumentTemporalDeleted)
+                                          let status = MetadataFor(employee).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
+                                          let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalMetadata.RavenDocumentTemporalEffectiveStart)
+                                          let deleted = MetadataFor(employee).Value<bool>(TemporalMetadata.RavenDocumentTemporalDeleted)
                                           where status == TemporalStatus.Revision && deleted == false
                                           select new {
                                                          Effective = effective,
@@ -41,9 +41,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
 
             // Map a -1 on each Until date
             AddMap<Employee>(employees => from employee in employees
-                                          let status = MetadataFor(employee).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
-                                          let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalConstants.RavenDocumentTemporalEffectiveUntil)
-                                          let deleted = MetadataFor(employee).Value<bool>(TemporalConstants.RavenDocumentTemporalDeleted)
+                                          let status = MetadataFor(employee).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
+                                          let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalMetadata.RavenDocumentTemporalEffectiveUntil)
+                                          let deleted = MetadataFor(employee).Value<bool>(TemporalMetadata.RavenDocumentTemporalDeleted)
                                           where status == TemporalStatus.Revision && deleted == false
                                           select new {
                                                          Effective = effective,

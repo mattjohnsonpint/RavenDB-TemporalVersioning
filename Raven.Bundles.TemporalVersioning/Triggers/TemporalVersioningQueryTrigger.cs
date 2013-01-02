@@ -25,7 +25,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
             // If an effective date was passed in, then use it.
             DateTimeOffset effectiveDate;
-            var headerValue = CurrentOperationContext.Headers.Value[TemporalConstants.TemporalEffectiveDate];
+            var headerValue = CurrentOperationContext.Headers.Value[TemporalMetadata.TemporalEffectiveDate];
             if (headerValue == null || !DateTimeOffset.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
             {
                 // If no effective data passed, return as stored.

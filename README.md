@@ -221,7 +221,7 @@ If you want to *only* query current data, you can simply filter in the index and
         public Foos_CurrentByBar()
         {
             Map = foos => from foo in foos
-                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
                           where status == TemporalStatus.Current
                           select new {
                                          foo.Bar
@@ -239,7 +239,7 @@ If you might be querying for current data sometimes, and non-current data at oth
         public Foos_ByBar()
         {
             Map = foos => from foo in foos
-                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
                           where status == TemporalStatus.Revision
                           select new {
                                          foo.Bar
@@ -295,7 +295,7 @@ When current data changes, either by putting a new revision or by the Temporal A
         public Foos_CurrentCount()
         {
             Map = foos => from foo in foos
-                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
                           where status == TemporalStatus.Current
                           select new {
                                          Count = 1
@@ -368,7 +368,7 @@ If you had more complex concerns for building your audit trail, you could use a 
         public Foos_History()
         {
             Map = foos => from foo in foos
-                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
                           where status == TemporalStatus.Revision || status == TemporalStatus.Artifact
                           select new {
                                          foo.Id,
@@ -429,7 +429,7 @@ For convenience, you can access these via a few different ways.  These are all e
 
     // the strings are all available as constants
     var metadata = session.Advanced.GetMetatadataFor(foo);
-    string status = metadata.Value<string>(TemporalConstants.RavenDocumentTemporalStatus);
+    string status = metadata.Value<string>(TemporalMetadata.RavenDocumentTemporalStatus);
 
     // there is a strongly-typed access already wired up to these values
     var metadata = session.Advanced.GetMetatadataFor(foo);

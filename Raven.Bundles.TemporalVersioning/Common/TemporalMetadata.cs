@@ -9,7 +9,15 @@ namespace Raven.Bundles.TemporalVersioning.Common
 {
     public class TemporalMetadata
     {
-        private readonly RavenJObject _metadata;
+	    public const string TemporalEffectiveDate = "Temporal-Effective-Date";
+	    public const string RavenDocumentTemporalRevision = "Raven-Document-Temporal-Revision";
+	    public const string RavenDocumentTemporalStatus = "Raven-Document-Temporal-Status";
+	    public const string RavenDocumentTemporalEffectiveStart = "Raven-Document-Temporal-Effective-Start";
+	    public const string RavenDocumentTemporalEffectiveUntil = "Raven-Document-Temporal-Effective-Until";
+	    public const string RavenDocumentTemporalDeleted = "Raven-Document-Temporal-Deleted";
+	    public const string RavenDocumentTemporalPending = "Raven-Document-Temporal-Pending";
+
+	    private readonly RavenJObject _metadata;
 
         public TemporalMetadata(RavenJObject metadata)
         {
@@ -20,12 +28,12 @@ namespace Raven.Bundles.TemporalVersioning.Common
         {
             get
             {
-                var revision = _metadata.Value<int?>(TemporalConstants.RavenDocumentTemporalRevision);
+                var revision = _metadata.Value<int?>(RavenDocumentTemporalRevision);
                 return revision.HasValue ? revision.Value : 0;
             }
             set
             {
-                const string key = TemporalConstants.RavenDocumentTemporalRevision;
+                const string key = RavenDocumentTemporalRevision;
 
                 if (value > 0)
                     _metadata[key] = value;
@@ -39,13 +47,13 @@ namespace Raven.Bundles.TemporalVersioning.Common
             get
             {
                 TemporalStatus status;
-                return Enum.TryParse(_metadata.Value<string>(TemporalConstants.RavenDocumentTemporalStatus), out status)
+                return Enum.TryParse(_metadata.Value<string>(RavenDocumentTemporalStatus), out status)
                            ? status
                            : TemporalStatus.NonTemporal;
             }
             set
             {
-                const string key = TemporalConstants.RavenDocumentTemporalStatus;
+                const string key = RavenDocumentTemporalStatus;
 
                 if (value != TemporalStatus.NonTemporal)
                     _metadata[key] = value.ToString();
@@ -56,22 +64,22 @@ namespace Raven.Bundles.TemporalVersioning.Common
 
         public bool Deleted
         {
-            get { return _metadata.Value<bool?>(TemporalConstants.RavenDocumentTemporalDeleted) ?? false; }
-            set { _metadata[TemporalConstants.RavenDocumentTemporalDeleted] = value; }
+            get { return _metadata.Value<bool?>(RavenDocumentTemporalDeleted) ?? false; }
+            set { _metadata[RavenDocumentTemporalDeleted] = value; }
         }
 
         public bool Pending
         {
-            get { return _metadata.Value<bool?>(TemporalConstants.RavenDocumentTemporalPending) ?? false; }
-            set { _metadata[TemporalConstants.RavenDocumentTemporalPending] = value; }
+            get { return _metadata.Value<bool?>(RavenDocumentTemporalPending) ?? false; }
+            set { _metadata[RavenDocumentTemporalPending] = value; }
         }
 
         public DateTimeOffset? Effective
         {
-            get { return _metadata.Value<DateTimeOffset?>(TemporalConstants.TemporalEffectiveDate); }
+            get { return _metadata.Value<DateTimeOffset?>(TemporalEffectiveDate); }
             set
             {
-                const string key = TemporalConstants.TemporalEffectiveDate;
+                const string key = TemporalEffectiveDate;
 
                 if (value.HasValue)
                     _metadata[key] = value;
@@ -82,10 +90,10 @@ namespace Raven.Bundles.TemporalVersioning.Common
 
         public DateTimeOffset? EffectiveStart
         {
-            get { return _metadata.Value<DateTimeOffset?>(TemporalConstants.RavenDocumentTemporalEffectiveStart); }
+            get { return _metadata.Value<DateTimeOffset?>(RavenDocumentTemporalEffectiveStart); }
             set
             {
-                const string key = TemporalConstants.RavenDocumentTemporalEffectiveStart;
+                const string key = RavenDocumentTemporalEffectiveStart;
 
                 if (value.HasValue)
                     _metadata[key] = value;
@@ -96,10 +104,10 @@ namespace Raven.Bundles.TemporalVersioning.Common
 
         public DateTimeOffset? EffectiveUntil
         {
-            get { return _metadata.Value<DateTimeOffset?>(TemporalConstants.RavenDocumentTemporalEffectiveUntil); }
+            get { return _metadata.Value<DateTimeOffset?>(RavenDocumentTemporalEffectiveUntil); }
             set
             {
-                const string key = TemporalConstants.RavenDocumentTemporalEffectiveUntil;
+                const string key = RavenDocumentTemporalEffectiveUntil;
 
                 if (value.HasValue)
                     _metadata[key] = value;

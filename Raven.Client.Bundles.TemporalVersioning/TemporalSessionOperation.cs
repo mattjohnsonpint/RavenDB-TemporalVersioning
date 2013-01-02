@@ -129,9 +129,9 @@ namespace Raven.Client.Bundles.TemporalVersioning
         internal T TemporalLoad<T>(Func<T> loadOperation)
         {
             // perform the load operation, passing the temporal effective date header just for this operation
-            _headers.Add(TemporalConstants.TemporalEffectiveDate, _effectiveDate.UtcDateTime.ToString("o"));
+            _headers.Add(TemporalMetadata.TemporalEffectiveDate, _effectiveDate.UtcDateTime.ToString("o"));
             var result = loadOperation();
-            _headers.Remove(TemporalConstants.TemporalEffectiveDate);
+            _headers.Remove(TemporalMetadata.TemporalEffectiveDate);
 
             return result;
         }

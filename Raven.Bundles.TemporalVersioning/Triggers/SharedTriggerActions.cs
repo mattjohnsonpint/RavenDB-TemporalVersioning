@@ -42,7 +42,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 foreach (var revisionKey in futureRevisions)
                 {
                     database.SetDocumentMetadata(revisionKey, transactionInformation,
-                                                 TemporalConstants.RavenDocumentTemporalStatus,
+                                                 TemporalMetadata.RavenDocumentTemporalStatus,
                                                  TemporalStatus.Artifact.ToString());
                 }
 
@@ -51,7 +51,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 if (lastRevision != null)
                 {
                     database.SetDocumentMetadata(lastRevision, transactionInformation,
-                                                 TemporalConstants.RavenDocumentTemporalEffectiveUntil,
+                                                 TemporalMetadata.RavenDocumentTemporalEffectiveUntil,
                                                  effective);
                 }
             }

@@ -112,7 +112,7 @@ namespace Raven.Bundles.TemporalVersioning
                     var transactionInformation = new TransactionInformation { Id = Guid.NewGuid(), Timeout = TimeSpan.FromMinutes(1) };
 
                     // Mark the document as non-pending
-                    _database.SetDocumentMetadata(revisionkey, transactionInformation, TemporalConstants.RavenDocumentTemporalPending, false);
+                    _database.SetDocumentMetadata(revisionkey, transactionInformation, TemporalMetadata.RavenDocumentTemporalPending, false);
 
                     // Get the current key from the revision key
                     var currentKey = revisionkey.Substring(0, revisionkey.IndexOf(TemporalConstants.TemporalKeySeparator, StringComparison.Ordinal));
@@ -128,8 +128,8 @@ namespace Raven.Bundles.TemporalVersioning
                     else
                     {
                         // Prepare the current document metadata
-                        newRevisionDoc.Metadata.Remove(TemporalConstants.RavenDocumentTemporalDeleted);
-                        newRevisionDoc.Metadata.Remove(TemporalConstants.RavenDocumentTemporalPending);
+                        newRevisionDoc.Metadata.Remove(TemporalMetadata.RavenDocumentTemporalDeleted);
+                        newRevisionDoc.Metadata.Remove(TemporalMetadata.RavenDocumentTemporalPending);
                         newRevisionDoc.Metadata.Remove("@id");
                         temporal.Status = TemporalStatus.Current;
                         temporal.RevisionNumber = int.Parse(newRevisionDoc.Key.Split('/').Last());

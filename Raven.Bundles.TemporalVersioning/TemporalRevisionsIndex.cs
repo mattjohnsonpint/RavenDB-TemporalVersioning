@@ -30,11 +30,11 @@ select new
     {9} = doc[""{0}""][""{10}""]
 }}",
                                                     Constants.Metadata,
-                                                    TemporalConstants.RavenDocumentTemporalStatus, TemporalStatus.Revision,
-                                                    EffectiveStart, TemporalConstants.RavenDocumentTemporalEffectiveStart,
-                                                    EffectiveUntil, TemporalConstants.RavenDocumentTemporalEffectiveUntil,
-                                                    Deleted, TemporalConstants.RavenDocumentTemporalDeleted,
-                                                    Pending, TemporalConstants.RavenDocumentTemporalPending)
+                                                    TemporalMetadata.RavenDocumentTemporalStatus, TemporalStatus.Revision,
+                                                    EffectiveStart, TemporalMetadata.RavenDocumentTemporalEffectiveStart,
+                                                    EffectiveUntil, TemporalMetadata.RavenDocumentTemporalEffectiveUntil,
+                                                    Deleted, TemporalMetadata.RavenDocumentTemporalDeleted,
+                                                    Pending, TemporalMetadata.RavenDocumentTemporalPending)
                                             };
 
             if (database.GetIndexDefinition(TemporalConstants.TemporalRevisionsIndex) == null)
