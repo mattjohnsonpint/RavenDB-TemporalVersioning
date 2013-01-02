@@ -7,6 +7,23 @@ It allows you to make changes to a document that are effective at a particular p
 
 The difference between this and Raven's official "Versioning Bundle" is that past changes are not hidden from you.  You can load, store, delete, or query at any date.  You can query on past data.  You can even build Temporal Map/Reduce Indexes that allow you to aggregate data at specific points in time.
 
+### Temporal What???
+
+If you have ever had a requirement or specification that includes the words "As Of", or "Effective" - then you have encountered a temporal effectivity concern.
+
+Some examples:
+
+- Give an employee a raise *effective next week*.
+- Change a person's name *as of their wedding date*.
+- Use a different financial formula *starting next month*, or *retroactively from last quarter*.
+- Put a product on sale *as of tomorrow*, and put it back at the regular price *effective next week*.
+
+This is quite different than just keeping track of what has changed.  You must be able to *use* those changes in at the appropriate times.
+
+A relational database system might make use of [history tables](http://database-programmer.blogspot.com/2008/07/history-tables.html) or use some advanced flavor of [6th normal form (6NF)](http://en.wikipedia.org/wiki/Sixth_normal_form) to represent data like this.
+In a document database like RavenDB, we need a more robust way to handle these concerns.  That is what the Temporal Versioning bundle accomplishes.
+
+It's important to realize that temporal versioning is usually for providing a temporal context where none naturally exists in the data.  For example, if you record a series of events that took place at a particular time, the timestamp of each event is already providing temporal context.  It probably doesn't make sense to add another one with temporal versioning.  If you wanted to track changes to those events, the regular [RavenDB Versioning bundle](http://ravendb.net/docs/server/bundles/versioning) would be more appropriate.
 
 ### Manual Installation
 
