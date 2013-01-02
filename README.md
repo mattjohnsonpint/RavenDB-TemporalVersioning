@@ -187,6 +187,8 @@ There are many different ways to query temporal data, some are simple, and some 
 
 ##### Querying data dynamically
 
+When you query against a dynamically created index, the default behavior is to filter your results to only those that match the effective date you specifiy.  If you do not specify an effective date, results are filtered to current data.
+
     // query current data
     var results = session.Query<Foo>().Where(x=> x.Bar == 123);
 
@@ -213,7 +215,28 @@ If you want to *only* query current data, you can simply filter in the index and
     // Returns only current results.  The bundle doesn't have to filter because the index contained only current data.
     var results = session.Query<Foo, Foos_CurrentByBar>().Where(x=> x.Bar == 123);
 
-If you might be querying for current data sometimes, and non-current data at other times, then it makes more sense to index everything and query temporally.
+If you might be querying for current data sometimes, and non-current data at other times, then it makes more sense to index the temporal revisions.
+
+    public class Foos_ByBar : AbstractIndexCreationTask<Foo>
+    {
+        public Foos_ByBar()
+        {
+            Map = foos => from foo in foos
+                          let status = MetadataFor(foo).Value<TemporalStatus>(TemporalConstants.RavenDocumentTemporalStatus)
+                          where status == TemporalStatus.Revision
+                          select new {
+                                         foo.Bar
+                                     };
+        }
+    }
+
+    // Returns current results, because the bundle filtered the results to those that are effective now.
+    var results = session.Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
+
+    // Returns past or future results, because the bundle filtered the results to those that matched the effective date we asked for.
+    var results = session.Effective(dto).Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
+
+You can also just use an index that is not filtered at all.  This is probably the most common scenario, as it doesn't require one to think about temporal versioning when building the index.
 
     public class Foos_ByBar : AbstractIndexCreationTask<Foo>
     {
@@ -231,6 +254,13 @@ If you might be querying for current data sometimes, and non-current data at oth
 
     // Returns past or future results, because the bundle filtered the results to those that matched the effective date we asked for.
     var results = session.Effective(dto).Query<Foo, Foos_ByBar>().Where(x=> x.Bar == 123);
+
+When you query against this type of index, the bundle will return only temporal revisions that match the effective date - just like before.  However, if you need to get back *all* documents that exist, including current data, revisions, and artifacts, you can disable temporal filtering.
+
+    // Returns ALL documents that are in the index, without filtering by status or effective date.
+    var results = session.Query<Foo, Foos_ByBar>()
+                         .Customize(x => x.DisableTemporalFiltering())
+                         .Where(x=> x.Bar == 123);
 
 ##### Map/Reduce of current data
 
@@ -271,7 +301,7 @@ When current data changes, either by putting a new revision or by the Temporal A
 
 Temporal Map/Reduce is needed if you want to be able to get totals at an arbitrary point in time.  This is a difficult problem to solve, and requires an advanced pattern that is currently difficult to express in RavenDB.  Refer to the `Employees_TemporalCount` index in the unit tests for an example of how it can be done.  Also be sure to look at the way that this data must be queried in order to get valid results.
 
-There may be ways to express indexes more easily if one can pre-determine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  Unfortunately, this would probably require use of `Enumerable.Range` in the index map, which is currently unsupported in Raven.  When issue [RavenDB-757](http://issues.hibernatingrhinos.com/issue/RavenDB-757) is resolved, the documentation and tests will be updated with an example.
+There may be ways to express indexes more easily if one can predetermine specific intervals to query.  For example, you might build a `Foos_DailyCounts` index that has the counts *per day*.  Unfortunately, this would probably require use of `Enumerable.Range` in the index map, which is currently unsupported in Raven.  When issue [RavenDB-757](http://issues.hibernatingrhinos.com/issue/RavenDB-757) is resolved, the documentation and tests will be updated with an example.
 
 ## Getting an Audit Trail
 
@@ -331,8 +361,12 @@ If you had more complex concerns for building your audit trail, you could use a 
         }
     }
 
-    // just an example of what you might want to query
-    var results = session.Query<Foos_History.Result, Foos_History>().Where(x=> x.Id.StartsWith("foos/1") && x.ChangedBy == "bob").OrderBy(x=> x.TransactionTime);
+    // This is just an example of what you might want to query.
+    // You must disable temporal filtering so you get back all results.
+    var results = session.Query<Foos_History.Result, Foos_History>()
+                         .Customize(x => x.DisableTemporalFiltering())
+                         .Where(x=> x.Id.StartsWith("foos/1") && x.ChangedBy == "bob")
+                         .OrderBy(x=> x.TransactionTime);
 
 ## Temporal Metadata
 
@@ -341,7 +375,7 @@ The Temporal Versioning Bundle adds several new metadata values to temporal docu
 - `Raven-Document-Temporal-Revision`  
 The integer revision number, starting from 1.
 
-- `Raven-Document-Temporal-Effective`  
+- `Temporal-Effective-Date`  
 A `DateTimeOffset` used transitively when loading or storing documents.
 This is set by the client to inform the server of the intended effective date.
 It is then returned on all documents so that the same date can be re-used for any changes.
@@ -438,4 +472,8 @@ If one looks carefully at various other scenarios, a pattern emerges.  Point-in-
 
 ## Support
 
-This is a free community-contributed add-on to RavenDB.  For help, post questions on either *(but not both)* the [RavenDB Google Group](http://groups.google.com/group/ravendb) or to [Stack Overflow](http://www.stackoverflow.com) using the `RavenDB` tag.
+This is a free community-contributed add-on to RavenDB.  For assistance, post general usage questions, comments, and suggestions to the [RavenDB Google Group](http://groups.google.com/group/ravendb).  If you have a specific detailed question with code examples, you may want to post to [Stack Overflow](http://www.stackoverflow.com) using the `RavenDB` tag instead.  (Please do not cross-post, the same people monitor both sites and your question will be heard.)
+
+## License
+
+The Temporal Versioning bundle and client are MIT licensed add-ons to RavenDB.  You can read the license terms [here](https://raw.github.com/mj1856/RavenDB-TemporalVersioning/master/LICENSE.txt).  RavenDB is [licensed separately](http://ravendb.net/licensing).
