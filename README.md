@@ -18,7 +18,7 @@ Some examples:
 - Use a different financial formula *starting next month*, or *retroactively from last quarter*.
 - Put a product on sale *as of tomorrow*, and put it back at the regular price *effective next week*.
 
-This is quite different than just keeping track of what has changed.  You must be able to *use* those changes in at the appropriate times.
+This is quite different than just keeping track of what has changed.  You must be able to *use* those changes at the appropriate times.
 
 A relational database system might make use of [history tables](http://database-programmer.blogspot.com/2008/07/history-tables.html) or use some advanced flavor of [6th normal form (6NF)](http://en.wikipedia.org/wiki/Sixth_normal_form) to represent data like this.
 In a document database like RavenDB, we need a more robust way to handle these concerns.  That is what the Temporal Versioning bundle accomplishes.
