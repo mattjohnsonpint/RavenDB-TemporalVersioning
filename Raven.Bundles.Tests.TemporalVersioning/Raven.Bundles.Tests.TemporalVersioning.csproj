@@ -67,6 +67,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CurrentMapReduceQueryTests.cs" />
+    <Compile Include="HttpTests.cs" />
     <Compile Include="Indexes\Employees_RevisionsByName.cs" />
     <Compile Include="Indexes\Employees_CurrentByName.cs" />
     <Compile Include="Indexes\Employees_CurrentCount.cs" />

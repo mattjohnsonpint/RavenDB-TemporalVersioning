@@ -25,13 +25,13 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
             // If an effective date was passed in, then use it.
             DateTimeOffset effectiveDate;
-            var headerValue = CurrentOperationContext.Headers.Value[TemporalMetadata.TemporalEffectiveDate];
+            var headerValue = CurrentOperationContext.Headers.Value[TemporalMetadata.RavenTemporalEffective];
             if (headerValue == null || !DateTimeOffset.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
             {
                 // If no effective data passed, return as stored.
                 return ReadVetoResult.Allowed;
             }
-            
+
             // Return the requested effective date in the metadata.
             var temporal = metadata.GetTemporalMetadata();
             temporal.Effective = effectiveDate;

@@ -9,15 +9,15 @@ namespace Raven.Bundles.TemporalVersioning.Common
 {
     public class TemporalMetadata
     {
-	    public const string TemporalEffectiveDate = "Temporal-Effective-Date";
-	    public const string RavenDocumentTemporalRevision = "Raven-Document-Temporal-Revision";
-	    public const string RavenDocumentTemporalStatus = "Raven-Document-Temporal-Status";
-	    public const string RavenDocumentTemporalEffectiveStart = "Raven-Document-Temporal-Effective-Start";
-	    public const string RavenDocumentTemporalEffectiveUntil = "Raven-Document-Temporal-Effective-Until";
-	    public const string RavenDocumentTemporalDeleted = "Raven-Document-Temporal-Deleted";
-	    public const string RavenDocumentTemporalPending = "Raven-Document-Temporal-Pending";
+        public const string RavenTemporalEffective = "Raven-Temporal-Effective";
+        public const string RavenDocumentTemporalRevision = "Raven-Document-Temporal-Revision";
+        public const string RavenDocumentTemporalStatus = "Raven-Document-Temporal-Status";
+        public const string RavenDocumentTemporalEffectiveStart = "Raven-Document-Temporal-Effective-Start";
+        public const string RavenDocumentTemporalEffectiveUntil = "Raven-Document-Temporal-Effective-Until";
+        public const string RavenDocumentTemporalDeleted = "Raven-Document-Temporal-Deleted";
+        public const string RavenDocumentTemporalPending = "Raven-Document-Temporal-Pending";
 
-	    private readonly RavenJObject _metadata;
+        private readonly RavenJObject _metadata;
 
         public TemporalMetadata(RavenJObject metadata)
         {
@@ -74,15 +74,46 @@ namespace Raven.Bundles.TemporalVersioning.Common
             set { _metadata[RavenDocumentTemporalPending] = value; }
         }
 
+        //public DateTimeOffset? Effective
+        //{
+        //	get
+        //	{
+        //		return _metadata.Value<DateTimeOffset?>(TemporalEffectiveDate) ??
+        //			   _metadata.Value<DateTimeOffset?>("Raven-" + TemporalEffectiveDate);
+        //	}
+        //	set
+        //	{
+        //		const string key = TemporalEffectiveDate;
+
+        //		if (value.HasValue)
+        //			_metadata[key] = value.Value;
+        //		else
+        //		{
+        //			if (_metadata.ContainsKey(key))
+        //				_metadata.Remove(key);
+        //			if (_metadata.ContainsKey("Raven-" + key))
+        //				_metadata.Remove("Raven-" + key);
+        //		}
+        //	}
+        //}
+
         public DateTimeOffset? Effective
         {
-            get { return _metadata.Value<DateTimeOffset?>(TemporalEffectiveDate); }
+            get
+            {
+                var dto = _metadata.Value<DateTimeOffset?>(RavenTemporalEffective);
+                if (dto == null)
+                {
+                    Console.WriteLine();
+                }
+                return dto;
+            }
             set
             {
-                const string key = TemporalEffectiveDate;
+                const string key = RavenTemporalEffective;
 
                 if (value.HasValue)
-                    _metadata[key] = value;
+                    _metadata[key] = RavenJToken.FromObject(value.Value);
                 else if (_metadata.ContainsKey(key))
                     _metadata.Remove(key);
             }
@@ -96,7 +127,7 @@ namespace Raven.Bundles.TemporalVersioning.Common
                 const string key = RavenDocumentTemporalEffectiveStart;
 
                 if (value.HasValue)
-                    _metadata[key] = value;
+                    _metadata[key] = value.Value;
                 else if (_metadata.ContainsKey(key))
                     _metadata.Remove(key);
             }
@@ -110,7 +141,7 @@ namespace Raven.Bundles.TemporalVersioning.Common
                 const string key = RavenDocumentTemporalEffectiveUntil;
 
                 if (value.HasValue)
-                    _metadata[key] = value;
+                    _metadata[key] = value.Value;
                 else if (_metadata.ContainsKey(key))
                     _metadata.Remove(key);
             }

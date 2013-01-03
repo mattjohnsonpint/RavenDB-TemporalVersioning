@@ -12,7 +12,8 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
     {
         private static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
-        public static int PutRevision(this DocumentDatabase database, string key, RavenJObject document, RavenJObject metadata, TransactionInformation transactionInformation, bool deleted = false)
+        public static int PutRevision(this DocumentDatabase database, string key, RavenJObject document, RavenJObject metadata,
+                                      TransactionInformation transactionInformation, bool deleted = false)
         {
             Log.Debug("Putting new temporal revision for {0}", key);
 

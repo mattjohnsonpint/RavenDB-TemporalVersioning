@@ -32,7 +32,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
             var session = (DocumentSession) ThreadLocalSession.Value;
             var headers = session.DatabaseCommands.OperationsHeaders;
-            var header = string.Format("{0}-{1}", TemporalMetadata.TemporalEffectiveDate, key.Replace('/', '-'));
+            var header = string.Format("{0}-{1}", TemporalMetadata.RavenTemporalEffective, key.Replace('/', '-'));
 
             var effectiveDate = temporal.Effective ?? SystemTime.UtcNow;
             headers[header] = effectiveDate.ToString("o");
@@ -73,9 +73,9 @@ namespace Raven.Client.Bundles.TemporalVersioning
             var session = (DocumentSession) documentQuery.Session;
             var headers = session.DatabaseCommands.OperationsHeaders;
 
-            headers[TemporalMetadata.TemporalEffectiveDate] = effectiveDate;
+            headers[TemporalMetadata.RavenTemporalEffective] = effectiveDate;
 
-            documentQuery.AfterQueryExecuted((Action<QueryResult>) (result => headers.Remove(TemporalMetadata.TemporalEffectiveDate)));
+            documentQuery.AfterQueryExecuted((Action<QueryResult>) (result => headers.Remove(TemporalMetadata.RavenTemporalEffective)));
         }
 
         public void EntityToDocument(string key, object entity, RavenJObject document, RavenJObject metadata)

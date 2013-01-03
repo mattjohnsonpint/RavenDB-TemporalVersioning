@@ -18,9 +18,10 @@ namespace Raven.Bundles.TemporalVersioning
 
         public static void CreateIndex(DocumentDatabase database)
         {
-            var index = new IndexDefinition {
-                                                Map = string.Format(
-                                                    @"from doc in docs
+            var index = new IndexDefinition
+                {
+                    Map = string.Format(
+                        @"from doc in docs
 where doc[""{0}""][""{1}""] == ""{2}""
 select new
 {{
@@ -29,13 +30,13 @@ select new
     {7} = doc[""{0}""][""{8}""],
     {9} = doc[""{0}""][""{10}""]
 }}",
-                                                    Constants.Metadata,
-                                                    TemporalMetadata.RavenDocumentTemporalStatus, TemporalStatus.Revision,
-                                                    EffectiveStart, TemporalMetadata.RavenDocumentTemporalEffectiveStart,
-                                                    EffectiveUntil, TemporalMetadata.RavenDocumentTemporalEffectiveUntil,
-                                                    Deleted, TemporalMetadata.RavenDocumentTemporalDeleted,
-                                                    Pending, TemporalMetadata.RavenDocumentTemporalPending)
-                                            };
+                        Constants.Metadata,
+                        TemporalMetadata.RavenDocumentTemporalStatus, TemporalStatus.Revision,
+                        EffectiveStart, TemporalMetadata.RavenDocumentTemporalEffectiveStart,
+                        EffectiveUntil, TemporalMetadata.RavenDocumentTemporalEffectiveUntil,
+                        Deleted, TemporalMetadata.RavenDocumentTemporalDeleted,
+                        Pending, TemporalMetadata.RavenDocumentTemporalPending)
+                };
 
             if (database.GetIndexDefinition(TemporalConstants.TemporalRevisionsIndex) == null)
                 database.PutIndex(TemporalConstants.TemporalRevisionsIndex, index);
@@ -52,14 +53,15 @@ select new
                                    Constants.DocumentIdFieldName, key,
                                    EffectiveStart, effective.UtcDateTime);
 
-            var query = new IndexQuery {
-                                           Start = 0,
-                                           PageSize = pageSize,
-                                           Cutoff = currentTime,
-                                           Query = qs,
-                                           FieldsToFetch = new[] { Constants.DocumentIdFieldName },
-                                           SortedFields = new[] { new SortedField(EffectiveStart) }
-                                       };
+            var query = new IndexQuery
+                {
+                    Start = 0,
+                    PageSize = pageSize,
+                    Cutoff = currentTime,
+                    Query = qs,
+                    FieldsToFetch = new[] { Constants.DocumentIdFieldName },
+                    SortedFields = new[] { new SortedField(EffectiveStart) }
+                };
 
             var list = new List<string>();
             while (true)
@@ -81,14 +83,15 @@ select new
                                    Constants.DocumentIdFieldName, key,
                                    EffectiveStart, effective.UtcDateTime.ToString("o"));
 
-            var query = new IndexQuery {
-                                           Start = 0,
-                                           PageSize = 1,
-                                           Cutoff = currentTime,
-                                           Query = qs,
-                                           FieldsToFetch = new[] { Constants.DocumentIdFieldName },
-                                           SortedFields = new[] { new SortedField(EffectiveStart) { Descending = true } }
-                                       };
+            var query = new IndexQuery
+                {
+                    Start = 0,
+                    PageSize = 1,
+                    Cutoff = currentTime,
+                    Query = qs,
+                    FieldsToFetch = new[] { Constants.DocumentIdFieldName },
+                    SortedFields = new[] { new SortedField(EffectiveStart) { Descending = true } }
+                };
 
             var result = database.Query(TemporalConstants.TemporalRevisionsIndex, query).Results.FirstOrDefault();
             return result == null ? null : result.Value<string>(Constants.DocumentIdFieldName);
@@ -104,14 +107,15 @@ select new
                                    EffectiveStart, EffectiveUntil, effectiveDate.UtcDateTime,
                                    Deleted, false);
 
-            var query = new IndexQuery {
-                                           Start = 0,
-                                           PageSize = 1,
-                                           Cutoff = currentTime,
-                                           Query = qs,
-                                           FieldsToFetch = new[] { Constants.DocumentIdFieldName },
-                                           SortedFields = new[] { new SortedField(EffectiveStart) { Descending = true } }
-                                       };
+            var query = new IndexQuery
+                {
+                    Start = 0,
+                    PageSize = 1,
+                    Cutoff = currentTime,
+                    Query = qs,
+                    FieldsToFetch = new[] { Constants.DocumentIdFieldName },
+                    SortedFields = new[] { new SortedField(EffectiveStart) { Descending = true } }
+                };
 
             var result = database.Query(TemporalConstants.TemporalRevisionsIndex, query).Results.FirstOrDefault();
             return result == null ? null : result.Value<string>(Constants.DocumentIdFieldName);
@@ -125,14 +129,14 @@ select new
             var qs = string.Format("{0}:{1}", Pending, true);
 
             var query = new IndexQuery
-            {
-                Start = 0,
-                PageSize = 1,
-                Cutoff = currentTime,
-                Query = qs,
-                FieldsToFetch = new[] { EffectiveStart },
-                SortedFields = new[] { new SortedField(EffectiveStart) }
-            };
+                {
+                    Start = 0,
+                    PageSize = 1,
+                    Cutoff = currentTime,
+                    Query = qs,
+                    FieldsToFetch = new[] { EffectiveStart },
+                    SortedFields = new[] { new SortedField(EffectiveStart) }
+                };
 
             var result = database.Query(TemporalConstants.TemporalRevisionsIndex, query).Results.FirstOrDefault();
             return result == null ? DateTime.MaxValue : result.Value<DateTime>(EffectiveStart);
@@ -150,14 +154,14 @@ select new
                                    EffectiveStart, currentTime);
 
             var query = new IndexQuery
-            {
-                Start = 0,
-                PageSize = pageSize,
-                Cutoff = currentTime,
-                Query = qs,
-                FieldsToFetch = new[] { Constants.DocumentIdFieldName },
-                SortedFields = new[] { new SortedField(EffectiveStart) }
-            };
+                {
+                    Start = 0,
+                    PageSize = pageSize,
+                    Cutoff = currentTime,
+                    Query = qs,
+                    FieldsToFetch = new[] { Constants.DocumentIdFieldName },
+                    SortedFields = new[] { new SortedField(EffectiveStart) }
+                };
 
             var list = new List<string>();
             while (true)
