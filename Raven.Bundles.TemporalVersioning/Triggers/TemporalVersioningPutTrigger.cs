@@ -21,6 +21,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             _clearCurrent.Value = false;
             _originalDocument.Value = null;
 
+            if (key == null)
+                return VetoResult.Allowed;
+
             // Don't do anything if temporal versioning is inactive for this document type
             if (!Database.IsTemporalVersioningEnabled(key, metadata))
                 return VetoResult.Allowed;
@@ -39,11 +42,14 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         public override void OnPut(string key, RavenJObject document, RavenJObject metadata, TransactionInformation transactionInformation)
         {
-            if (key != null && key.StartsWith("Raven/" + TemporalConstants.BundleName + "/Raven/"))
+            if (key == null)
+                return;
+
+            if (key.StartsWith("Raven/" + TemporalConstants.BundleName + "/Raven/"))
                 throw new InvalidOperationException("Cannot version RavenDB system documents!");
 
             // Clear the config cache any time a new configuration is written.
-            if (key != null && key.StartsWith("Raven/" + TemporalConstants.BundleName + "/"))
+            if (key.StartsWith("Raven/" + TemporalConstants.BundleName + "/"))
                 TemporalVersioningUtil.ConfigCache.Clear();
 
             if (!Database.IsTemporalVersioningEnabled(key, metadata))
@@ -87,6 +93,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         public override void AfterPut(string key, RavenJObject document, RavenJObject metadata, Guid etag, TransactionInformation transactionInformation)
         {
+            if (key == null)
+                return;
+
             using (Database.DisableAllTriggersForCurrentThread())
             {
                 // Restore the original document when the one we just saved is not current.

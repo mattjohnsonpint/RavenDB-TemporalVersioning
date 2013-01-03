@@ -27,6 +27,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             _temporalVersioningEnabled.Value = false;
             _effectiveVersionKey.Value = null;
 
+            if (key == null)
+                return ReadVetoResult.Allowed;
+
             // This trigger is only for load operations
             if (operation != ReadOperation.Load)
                 return ReadVetoResult.Allowed;
@@ -80,9 +83,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
         public override void OnRead(string key, RavenJObject document, RavenJObject metadata, ReadOperation operation,
                                     TransactionInformation transactionInformation)
         {
+            if (key == null)
+                return;
+
             // If we're loading a revision directly, make sure we have set the rev number in the metadata
             var temporal = metadata.GetTemporalMetadata();
-            if (key != null && key.Contains(TemporalConstants.TemporalKeySeparator))
+            if (key.Contains(TemporalConstants.TemporalKeySeparator))
                 temporal.RevisionNumber = int.Parse(key.Split('/').Last());
 
             // Handle migration from nontemporal document

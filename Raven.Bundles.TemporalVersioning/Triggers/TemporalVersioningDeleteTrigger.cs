@@ -20,6 +20,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             // always reset this
             _originalDocument.Value = null;
 
+            if (key == null)
+                return VetoResult.Allowed;
+
             using (Database.DisableAllTriggersForCurrentThread())
             {
                 // Load the document we're going to be deleting
@@ -61,6 +64,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         public override void AfterDelete(string key, TransactionInformation transactionInformation)
         {
+            if (key == null)
+                return;
+
             // Restore the original document when the one we just deleted was not current.
             var doc = _originalDocument.Value;
             if (doc != null)
