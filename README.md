@@ -178,7 +178,7 @@ We can make changes to a document at any effective date.  If you don't specify o
     foo.Bar = 123;
     session.SaveChanges();
 
-It's important to realize that any change made to the document will be made effective as of the same date it was loaded for.  When you load a document, the bundle sets the requested effective date in a metadata value called `Temporal-Effective-Date`.  When changes are saved, it uses this as the effective date of the changes.  **It is not recommended to hold on to an object for an extended period because the effective date will be stale.  You should load the document, make your changes, and save them.** 
+It's important to realize that any change made to the document will be made effective as of the same date it was loaded for.  When you load a document, the bundle sets the requested effective date in a metadata value called `Raven-Temporal-Effective`.  When changes are saved, it uses this as the effective date of the changes.  **It is not recommended to hold on to an object for an extended period because the effective date will be stale.  You should load the document, make your changes, and save them.** 
 
 #### Deleting a document
 
@@ -392,7 +392,7 @@ The Temporal Versioning Bundle adds several new metadata values to temporal docu
 - `Raven-Document-Temporal-Revision`  
 The integer revision number, starting from 1.
 
-- `Temporal-Effective-Date`  
+- `Raven-Temporal-Effective`  
 A `DateTimeOffset` used transitively when loading or storing documents.
 This is set by the client to inform the server of the intended effective date.
 It is then returned on all documents so that the same date can be re-used for any changes.
