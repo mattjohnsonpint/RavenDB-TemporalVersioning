@@ -74,29 +74,6 @@ namespace Raven.Bundles.TemporalVersioning.Common
             set { _metadata[RavenDocumentTemporalPending] = value; }
         }
 
-        //public DateTimeOffset? Effective
-        //{
-        //	get
-        //	{
-        //		return _metadata.Value<DateTimeOffset?>(TemporalEffectiveDate) ??
-        //			   _metadata.Value<DateTimeOffset?>("Raven-" + TemporalEffectiveDate);
-        //	}
-        //	set
-        //	{
-        //		const string key = TemporalEffectiveDate;
-
-        //		if (value.HasValue)
-        //			_metadata[key] = value.Value;
-        //		else
-        //		{
-        //			if (_metadata.ContainsKey(key))
-        //				_metadata.Remove(key);
-        //			if (_metadata.ContainsKey("Raven-" + key))
-        //				_metadata.Remove("Raven-" + key);
-        //		}
-        //	}
-        //}
-
         public DateTimeOffset? Effective
         {
             get
