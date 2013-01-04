@@ -31,7 +31,10 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                 {
                     var current = session.Load<Employee>(id);
                     var metadataCurrent = session.Advanced.GetMetadataFor(current);
-                    Assert.Equal(testDateTimeOffset, metadataCurrent.Value<DateTimeOffset>("TestDateTimeOffset"));
+                    var actual = metadataCurrent.Value<DateTimeOffset>("TestDateTimeOffset");
+                    Assert.Equal(testDateTimeOffset, actual);
+                    Assert.Equal(testDateTimeOffset.DateTime, actual.DateTime);
+                    Assert.Equal(testDateTimeOffset.Offset, actual.Offset);
                 }
             }
         }
