@@ -14,12 +14,14 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
     {
         private readonly ThreadLocal<bool> _clearCurrent = new ThreadLocal<bool>();
         private readonly ThreadLocal<JsonDocument> _originalDocument = new ThreadLocal<JsonDocument>();
+        private readonly ThreadLocal<DateTime> _now = new ThreadLocal<DateTime>(); 
 
         public override VetoResult AllowPut(string key, RavenJObject document, RavenJObject metadata, TransactionInformation transactionInformation)
         {
             // always reset these
             _clearCurrent.Value = false;
             _originalDocument.Value = null;
+            _now.Value = SystemTime.UtcNow;
 
             if (key == null)
                 return VetoResult.Allowed;
@@ -35,7 +37,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             // If no effective date was passed in, use now.
             var temporal = metadata.GetTemporalMetadata();
             if (!temporal.Effective.HasValue)
-                temporal.Effective = SystemTime.UtcNow;
+                temporal.Effective = _now.Value;
 
             return VetoResult.Allowed;
         }
@@ -63,12 +65,11 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 temporal.EffectiveUntil = DateTimeOffset.MaxValue;
 
                 // See if the revision we're saving is current.
-                var now = SystemTime.UtcNow;
-                var current = temporal.Effective <= now;
+                var current = temporal.Effective <= _now.Value;
 
                 // Don't save the requested date with the document
                 temporal.Effective = null;
-
+                
                 if (!current)
                 {
                     // When it's not current, then fetch the current one so we can put it back later.
@@ -80,7 +81,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 }
 
                 // Always store this new data as a revision document
-                var versionNumber = Database.PutRevision(key, document, metadata, transactionInformation);
+                var versionNumber = Database.PutRevision(key, document, metadata, transactionInformation, _now.Value);
 
                 if (current)
                 {

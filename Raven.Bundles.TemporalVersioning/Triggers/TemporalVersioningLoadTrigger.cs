@@ -20,12 +20,14 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         private readonly ThreadLocal<string> _effectiveVersionKey = new ThreadLocal<string>();
         private readonly ThreadLocal<bool> _temporalVersioningEnabled = new ThreadLocal<bool>();
+        private readonly ThreadLocal<DateTime> _now = new ThreadLocal<DateTime>(); 
 
         public override ReadVetoResult AllowRead(string key, RavenJObject metadata, ReadOperation operation, TransactionInformation transactionInformation)
         {
             // always reset these
             _temporalVersioningEnabled.Value = false;
             _effectiveVersionKey.Value = null;
+            _now.Value = SystemTime.UtcNow;
 
             if (key == null)
                 return ReadVetoResult.Allowed;
@@ -50,7 +52,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             if (headerValue == null || !DateTimeOffset.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
             {
                 // If no effective data passed, return current data, as stored, effective now.
-                temporal.Effective = SystemTime.UtcNow;
+                temporal.Effective = _now.Value;
                 return ReadVetoResult.Allowed;
             }
 
@@ -101,7 +103,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 // Fake out the current document for the return of this load.
                 temporal.Status = TemporalStatus.Current;
                 temporal.RevisionNumber = 1;
-                temporal.Effective = SystemTime.UtcNow;
+                temporal.Effective = _now.Value;
                 temporal.EffectiveStart = DateTimeOffset.MinValue;
                 temporal.EffectiveUntil = DateTimeOffset.MaxValue;
             }

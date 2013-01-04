@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using Raven.Abstractions;
+﻿using System;
+using System.Linq;
 using Raven.Abstractions.Data;
 using Raven.Abstractions.Logging;
 using Raven.Bundles.TemporalVersioning.Common;
@@ -13,7 +13,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
         private static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
         public static int PutRevision(this DocumentDatabase database, string key, RavenJObject document, RavenJObject metadata,
-                                      TransactionInformation transactionInformation, bool deleted = false)
+                                      TransactionInformation transactionInformation, DateTime now, bool deleted = false)
         {
             Log.Debug("Putting new temporal revision for {0}", key);
 
@@ -26,7 +26,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             var effective = temporal.EffectiveStart.GetValueOrDefault();
             temporal.Status = TemporalStatus.Revision;
             temporal.Deleted = deleted;
-            temporal.Pending = effective > SystemTime.UtcNow;
+            temporal.Pending = effective > now;
 
             // Store the revision
             var newRevisionDoc = database.Put(key + TemporalConstants.TemporalKeySeparator, null,
@@ -59,7 +59,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
             // Reset the activation timer with each put.
             // This is so future revisions can become current without having to constantly poll.
-            database.StartupTasks.OfType<TemporalActivator>().Single().ResetTimer(effective.UtcDateTime);
+            database.StartupTasks.OfType<TemporalActivator>().Single().ResetTimer(effective.UtcDateTime, now);
 
             // Return the revision number
             return revisionNumber;

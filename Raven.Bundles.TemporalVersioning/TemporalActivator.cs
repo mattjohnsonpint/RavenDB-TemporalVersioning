@@ -31,7 +31,7 @@ namespace Raven.Bundles.TemporalVersioning
 
             TemporalRevisionsIndex.CreateIndex(database);
 
-            ResetTimer(TemporalRevisionsIndex.GetNextPendingDate(_database));
+            ResetTimer(TemporalRevisionsIndex.GetNextPendingDate(_database), SystemTime.UtcNow);
         }
 
         public void Dispose()
@@ -46,14 +46,13 @@ namespace Raven.Bundles.TemporalVersioning
         /// <remarks>
         /// This is called any time a new revision is stored, preventing us from having to poll periodically.
         /// </remarks>
-        internal void ResetTimer(DateTime runDate)
+        internal void ResetTimer(DateTime runDate, DateTime now)
         {
             // Don't wait at all if we were asked to wait forever.
             if (runDate == DateTime.MaxValue)
                 return;
 
             // Never wait more than an hour from now.  Running early is ok.
-            var now = SystemTime.UtcNow;
             if (runDate > now.AddHours(1))
                 runDate = now.AddHours(1);
 
@@ -93,7 +92,7 @@ namespace Raven.Bundles.TemporalVersioning
             }
             finally
             {
-                ResetTimer(TemporalRevisionsIndex.GetNextPendingDate(_database));
+                ResetTimer(TemporalRevisionsIndex.GetNextPendingDate(_database), SystemTime.UtcNow);
                 _executing = false;
             }
         }

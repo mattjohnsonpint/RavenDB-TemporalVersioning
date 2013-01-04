@@ -51,11 +51,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 temporal.EffectiveUntil = DateTimeOffset.MaxValue;
 
                 // Put the deleted revision
-                Database.PutRevision(key, document.DataAsJson, document.Metadata, transactionInformation, deleted: true);
+                var now = SystemTime.UtcNow;
+                Database.PutRevision(key, document.DataAsJson, document.Metadata, transactionInformation, now, deleted: true);
 
                 // If we are deleting at some future date, then hold on to a copy so we can restore it after it gets deleted.
                 // (This would not be necessary if Raven supported "instead of" triggers.)
-                if (temporal.EffectiveStart > SystemTime.UtcNow)
+                if (temporal.EffectiveStart > now)
                     _originalDocument.Value = document;
 
                 return VetoResult.Allowed;

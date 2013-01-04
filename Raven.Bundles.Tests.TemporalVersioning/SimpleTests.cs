@@ -44,26 +44,39 @@ namespace Raven.Bundles.Tests.TemporalVersioning
         {
             using (var documentStore = this.GetTemporalDocumentStore())
             {
+                DateTimeOffset beforeSave, afterSave;
+
                 const string id = "employees/1";
                 using (var session = documentStore.OpenSession())
                 {
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Store(employee);
 
+                    beforeSave = DateTimeOffset.UtcNow;
                     session.SaveChanges();
+                    afterSave = DateTimeOffset.UtcNow;
                 }
 
                 // Check the results
                 using (var session = documentStore.OpenSession())
                 {
+                    var beforeLoad = DateTimeOffset.UtcNow;
                     var current = session.Load<Employee>(id);
+                    var afterLoad = DateTimeOffset.UtcNow;
+
                     Assert.Equal(id, current.Id);
                     Assert.Equal(10, current.PayRate);
 
                     var currentTemporal = session.Advanced.GetTemporalMetadataFor(current);
                     Assert.Equal(TemporalStatus.Current, currentTemporal.Status);
                     Assert.Equal(1, currentTemporal.RevisionNumber);
+
                     Assert.NotNull(currentTemporal.Effective);
+                    if (currentTemporal.Effective == null) return;
+                    Assert.InRange(currentTemporal.Effective.Value, beforeLoad, afterLoad);
+
+                    Assert.NotNull(currentTemporal.EffectiveStart);
+                    if (currentTemporal.EffectiveStart == null) return;
                 }
             }
         }
