@@ -77,9 +77,9 @@ namespace Raven.Client.Bundles.TemporalVersioning
             return history;
         }
 
-        public static ISyncTemporalSessionOperation Effective(this IDocumentSession session, DateTimeOffset effectiveDate)
+        public static ISyncTemporalSessionOperation Effective(this IDocumentSession session, DateTimeOffset effective)
         {
-            return new TemporalSessionOperation(session, effectiveDate);
+            return new TemporalSessionOperation(session, effective);
         }
 
         public static IDocumentQueryCustomization DisableTemporalFiltering(this IDocumentQueryCustomization customization)

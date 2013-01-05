@@ -34,8 +34,8 @@ namespace Raven.Client.Bundles.TemporalVersioning
             var headers = session.DatabaseCommands.OperationsHeaders;
             var header = string.Format("{0}-{1}", TemporalMetadata.RavenTemporalEffective, key.Replace('/', '-'));
 
-            var effectiveDate = temporal.Effective ?? SystemTime.UtcNow;
-            headers[header] = effectiveDate.ToString("o");
+            var effective = temporal.Effective ?? SystemTime.UtcNow;
+            headers[header] = effective.ToString("o");
         }
 
         public void BeforeQueryExecuted(IDocumentQueryCustomization queryCustomization)
@@ -46,7 +46,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
             if (fieldInfo == null)
                 throw new InvalidOperationException();
 
-            string effectiveDate = null;
+            string effective = null;
 
             var includes = (HashSet<string>) fieldInfo.GetValue(queryCustomization);
             if (includes != null)
@@ -58,22 +58,22 @@ namespace Raven.Client.Bundles.TemporalVersioning
                     return;
                 }
 
-                var effectiveDateTag = includes.FirstOrDefault(x => x.StartsWith("__TemporalEffectiveDate__"));
-                if (effectiveDateTag != null)
+                var effectiveTag = includes.FirstOrDefault(x => x.StartsWith("__TemporalEffective__"));
+                if (effectiveTag != null)
                 {
-                    includes.Remove(effectiveDateTag);
-                    effectiveDate = effectiveDateTag.Split('=')[1];
+                    includes.Remove(effectiveTag);
+                    effective = effectiveTag.Split('=')[1];
                 }
             }
 
-            if (effectiveDate == null)
-                effectiveDate = SystemTime.UtcNow.ToString("o");
+            if (effective == null)
+                effective = SystemTime.UtcNow.ToString("o");
 
             dynamic documentQuery = queryCustomization;
             var session = (DocumentSession) documentQuery.Session;
             var headers = session.DatabaseCommands.OperationsHeaders;
 
-            headers[TemporalMetadata.RavenTemporalEffective] = effectiveDate;
+            headers[TemporalMetadata.RavenTemporalEffective] = effective;
 
             documentQuery.AfterQueryExecuted((Action<QueryResult>) (result => headers.Remove(TemporalMetadata.RavenTemporalEffective)));
         }

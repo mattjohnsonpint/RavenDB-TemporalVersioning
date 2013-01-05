@@ -24,9 +24,9 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // If an effective date was passed in, then use it.
-            DateTimeOffset effectiveDate;
+            DateTimeOffset effective;
             var headerValue = CurrentOperationContext.Headers.Value[TemporalMetadata.RavenTemporalEffective];
-            if (headerValue == null || !DateTimeOffset.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effectiveDate))
+            if (headerValue == null || !DateTimeOffset.TryParse(headerValue, null, DateTimeStyles.RoundtripKind, out effective))
             {
                 // If no effective data passed, return as stored.
                 return ReadVetoResult.Allowed;
@@ -34,11 +34,11 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
             // Return the requested effective date in the metadata.
             var temporal = metadata.GetTemporalMetadata();
-            temporal.Effective = effectiveDate;
+            temporal.Effective = effective;
 
             // Return the result if it's the active revision, or skip it otherwise.
             return temporal.Status == TemporalStatus.Revision &&
-                   temporal.EffectiveStart <= effectiveDate && effectiveDate < temporal.EffectiveUntil &&
+                   temporal.EffectiveStart <= effective && effective < temporal.EffectiveUntil &&
                    !temporal.Deleted
                        ? ReadVetoResult.Allowed
                        : ReadVetoResult.Ignore;

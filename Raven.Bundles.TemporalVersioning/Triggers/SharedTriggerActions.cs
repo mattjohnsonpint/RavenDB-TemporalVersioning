@@ -59,7 +59,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                                                  TemporalStatus.Artifact.ToString());
                 }
 
-                // Update the until date of the last version prior to this one
+                // Update the until date of the last revison prior to this one
                 var lastRevision = history.Revisions.LastOrDefault(x => x.Key != newRevisionDoc.Key &&
                                                                         x.Status == TemporalStatus.Revision &&
                                                                         x.EffectiveStart < effective);
