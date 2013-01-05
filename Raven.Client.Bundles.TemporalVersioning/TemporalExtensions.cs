@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Raven.Abstractions.Data;
+using Raven.Abstractions.Extensions;
 using Raven.Client.Bundles.TemporalVersioning.Common;
+using Raven.Client.Connection;
 using Raven.Client.Document;
 using Raven.Client.Listeners;
 
@@ -44,6 +46,15 @@ namespace Raven.Client.Bundles.TemporalVersioning
             inMemoryDocumentSessionOperations.Store(configuration);
         }
 
+        public static T[] GetTemporalRevisionsFor<T>(this ISyncAdvancedSessionOperation session, string id, int start, int pageSize)
+        {
+            var inMemoryDocumentSessionOperations = ((InMemoryDocumentSessionOperations) session);
+            var jsonDocuments = ((DocumentSession) session).DatabaseCommands.StartsWith(id + TemporalConstants.TemporalKeySeparator, null, start, pageSize);
+            return jsonDocuments
+                .Select(inMemoryDocumentSessionOperations.TrackEntity<T>)
+                .ToArray();
+        }
+
         /// <summary>
         /// Gets a document containing all of the temporal metadata for every revision of a document.
         /// </summary>
@@ -62,7 +73,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
                 throw new ArgumentException("Raven system docs can not be versioned.");
 
             var key = TemporalHistory.GetKeyFor(id);
-            var history = ((IDocumentSession) session).Load<TemporalHistory>(key);
+            var history = ((IDocumentSession)session).Load<TemporalHistory>(key);
             if (history != null)
             {
                 // don't track this in the session
