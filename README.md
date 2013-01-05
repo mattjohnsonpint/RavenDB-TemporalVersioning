@@ -23,7 +23,7 @@ This is quite different than just keeping track of what has changed.  You must b
 A relational database system might make use of [history tables](http://database-programmer.blogspot.com/2008/07/history-tables.html) or use some advanced flavor of [6th normal form (6NF)](http://en.wikipedia.org/wiki/Sixth_normal_form) to represent data like this.
 In a document database like RavenDB, we need a more robust way to handle these concerns.  That is what the Temporal Versioning bundle accomplishes.
 
-It's important to realize that temporal versioning is usually for providing a temporal context where none naturally exists in the data.  For example, if you record a series of events that took place at a particular time, the timestamp of each event is already providing temporal context.  It probably doesn't make sense to add another one with temporal versioning.  If you wanted to track changes to those events, the regular [RavenDB Versioning bundle](http://ravendb.net/docs/server/bundles/versioning) would be more appropriate.
+It's important to realize that temporal versioning is usually for providing a temporal context where none naturally exists in the data.  For example, if you record a series of events that took place at a particular time, the timestamp of each event is already providing temporal context.  It probably doesn't make sense to add another one with temporal versioning.  If you wanted to track changes to those events, the regular [RavenDB Versioning bundle](http://ravendb.net/docs/server/bundles/versioning) may be more appropriate.
 
 ### Manual Installation
 
@@ -128,7 +128,7 @@ The methods available from here are the same as you're already used to with rave
 
 **Important** - Whenever writing a new revision of the data (regardless of create, update or delete), the effective date represents the date the revision goes into effect.  It is assumed that the revision will last *forever* until you provide the next revision.  If you provide a date that steps on existing data, the old data will no longer be part of the valid revision history.  The old revisions are not deleted, but they are turned into *artifacts* which are no longer valid representations of the data at any point in time.  Artifacts are useful can be used for audit trails.
 
-For those familiar with the concepts of *bi-temporal* data, this bundle is mostly focused on tracking effectivity through the *valid time* dimension, while the artifacts provide access to the *transaction time* dimension.
+For those familiar with the concepts of *bi-temporal* data, this bundle is mostly focused on tracking effectivity through the *valid time* dimension, but it **does** also record when those changes were made, providing access to the *transaction time* dimension.  *Transaction time* is also known as *assertion time*, and there are metadata values that you can retrive for the start/until asserted dates.  This can also give you a fully verifiable audit trail.
 
 ##### Document Revisions and the Temporal Activator
 
@@ -204,7 +204,7 @@ There are many different ways to query temporal data, some are simple, and some 
 
 ##### Querying data dynamically
 
-When you query against a dynamically created index, the default behavior is to filter your results to only those that match the effective date you specifiy.  If you do not specify an effective date, results are filtered to current data.
+When you query against a dynamically created index, the default behavior is to filter your results to only those that match the effective date you specify.  If you do not specify an effective date, results are filtered to current data.
 
     // query current data
     var results = session.Query<Foo>().Where(x=> x.Bar == 123);
@@ -345,14 +345,15 @@ We have made three changes, but the third change was effective *before* the seco
 
 But what if we want to produce an audit trail? We need to see all historical changes for "foos/1".  This will include both revisions and artifacts.  We can do this without an index with the following code:
 
-    // get all history for foos/1
-    var revisions = session.Advanced.GetTemporalRevisionsFor("foos/1", start, pageSize);
+    // get all revisions of foo entities for foos/1
+    var revisions = session.Advanced.GetTemporalRevisionsFor<Foo>("foos/1", start, pageSize);
 
-You an also get back just the ids and then load them separately:
-    
-    var revisionIds = session.Advanced.GetTemporalRevisionIdsFor("foos/1", start, pageSize);
+This method requires pagination to get at all the data, and returns the full documents and metadata for each revision.
 
-Both of these methods require pagination of their results.  For the transaction time, you can use the `Last-Modified` metadata value that Raven sets.
+If instead, we just want to know the temporal keys and metadata, we can pull a single `TemporalHistory` document, using the following method:
+
+    // get all history of temporal metadata for foos/1
+    var history = session.Advanced.GetTemporalHistoryFor("foos/1");
 
 If you had more complex concerns for building your audit trail, you could use a static index such as the following:
 
@@ -372,7 +373,7 @@ If you had more complex concerns for building your audit trail, you could use a 
                           where status == TemporalStatus.Revision || status == TemporalStatus.Artifact
                           select new {
                                          foo.Id,
-                                         TransactionTime = MetadataFor(foo)["Last-Modified"],
+                                         TransactionTime = MetadataFor(foo)[TemporalMetadata.RavenDocumentTemporalAssertedStart],
                                          ChangedBy = MetadataFor(foo)["Your-Custom-Metadata-For-Who-Made-The-Change"]
                                      };
         }
@@ -399,12 +400,18 @@ It is then returned on all documents so that the same date can be re-used for an
 It is never actually stored on the document, so you cannot query by it.
 
 - `Raven-Document-Temporal-Effective-Start`  
-The `DateTimeOffset` that the document becomes effective.
+The `DateTimeOffset` that the document revision becomes effective.
 
 - `Raven-Document-Temporal-Effective-Until`  
-The `DateTimeOffset` that the document is effective until.
+The `DateTimeOffset` that the document revision is effective until.
 
-**Note:** - The *Start* and *Until* dates form an inclusive/exclusive range over instantaneous valid time.
+- `Raven-Document-Temporal-Asserted-Start`  
+The `DateTimeOffset` that the document revision was originally asserted.
+
+- `Raven-Document-Temporal-Asserted-Until`  
+The `DateTimeOffset` that the document revision is asserted until.
+
+**Note:** - The *Start* and *Until* dates form an inclusive/exclusive range over instantaneous time.  
 Using [interval notation](http://en.wikipedia.org/wiki/Interval_%28mathematics%29#Notations_for_intervals) -  `[start, until)`
 
 - `Raven-Document-Temporal-Deleted`  
