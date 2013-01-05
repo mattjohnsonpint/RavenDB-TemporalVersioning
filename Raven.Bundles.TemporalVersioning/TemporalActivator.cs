@@ -29,9 +29,11 @@ namespace Raven.Bundles.TemporalVersioning
         {
             _database = database;
 
-            TemporalRevisionsIndex.CreateIndex(database);
+            PendingRevisionsIndex.CreateIndex(database);
 
-            ResetTimer(TemporalRevisionsIndex.GetNextPendingDate(_database), SystemTime.UtcNow);
+            var runDate = PendingRevisionsIndex.GetNextActivationDate(_database);
+
+            ResetTimer(runDate, SystemTime.UtcNow);
         }
 
         public void Dispose()
@@ -69,6 +71,7 @@ namespace Raven.Bundles.TemporalVersioning
 
             // Determine the wait time
             var wait = (long) (runDate - now).TotalMilliseconds;
+            if (wait < 0) wait = 0;
 
             // Set the timer.
             _timer.Change(wait, -1);
@@ -92,7 +95,8 @@ namespace Raven.Bundles.TemporalVersioning
             }
             finally
             {
-                ResetTimer(TemporalRevisionsIndex.GetNextPendingDate(_database), SystemTime.UtcNow);
+                var runDate = PendingRevisionsIndex.GetNextActivationDate(_database);
+                ResetTimer(runDate, SystemTime.UtcNow);
                 _executing = false;
             }
         }
@@ -101,7 +105,7 @@ namespace Raven.Bundles.TemporalVersioning
         {
             using (_database.DisableAllTriggersForCurrentThread())
             {
-                var revisionKeys = TemporalRevisionsIndex.GetPendingDocumentsRequiringActivation(_database);
+                var revisionKeys = PendingRevisionsIndex.GetRevisionsRequiringActivation(_database);
 
                 foreach (var revisionkey in revisionKeys)
                 {
@@ -110,12 +114,18 @@ namespace Raven.Bundles.TemporalVersioning
                     // Establish a new transaction
                     var transactionInformation = new TransactionInformation { Id = Guid.NewGuid(), Timeout = TimeSpan.FromMinutes(1) };
 
-                    // Mark the document as non-pending
-                    _database.SetDocumentMetadata(revisionkey, transactionInformation, TemporalMetadata.RavenDocumentTemporalPending, false);
-
                     // Get the current key from the revision key
                     var currentKey = revisionkey.Substring(0, revisionkey.IndexOf(TemporalConstants.TemporalKeySeparator, StringComparison.Ordinal));
 
+                    // Mark the document as non-pending
+                    _database.SetDocumentMetadata(revisionkey, transactionInformation, TemporalMetadata.RavenDocumentTemporalPending, false);
+
+                    // Mark it in the history also
+                    Guid? historyEtag;
+                    var history = _database.GetTemporalHistoryFor(currentKey, transactionInformation, out historyEtag);
+                    history.Revisions.First(x => x.Key == revisionkey).Pending = false;
+                    _database.SaveTemporalHistoryFor(currentKey, history, transactionInformation, historyEtag);
+                    
                     // Load the new revisions document
                     var newRevisionDoc = _database.Get(revisionkey, transactionInformation);
                     var temporal = newRevisionDoc.Metadata.GetTemporalMetadata();

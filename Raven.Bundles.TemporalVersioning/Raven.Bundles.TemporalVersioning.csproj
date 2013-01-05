@@ -52,13 +52,16 @@
     </Compile>
     <Compile Include="Common\TemporalConstants.cs" />
     <Compile Include="Common\TemporalExtensions.cs" />
+    <Compile Include="Common\TemporalHistory.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Common\TemporalMetadata.cs" />
     <Compile Include="Common\TemporalStatus.cs" />
     <Compile Include="Common\TemporalVersioningConfiguration.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="TemporalActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TemporalRevisionsIndex.cs" />
+    <Compile Include="PendingRevisionsIndex.cs" />
     <Compile Include="TemporalVersioningUtil.cs" />
     <Compile Include="Triggers\SharedTriggerActions.cs" />
     <Compile Include="Triggers\TemporalVersioningQueryTrigger.cs" />

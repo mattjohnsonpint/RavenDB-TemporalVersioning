@@ -8,6 +8,6 @@ namespace Raven.Bundles.TemporalVersioning.Common
     {
         public const string BundleName = "TemporalVersioning";
         public const string TemporalKeySeparator = "/temporalrevisions/";
-        public const string TemporalRevisionsIndex = "Raven/TemporalRevisions";
+        public const string PendingRevisionsIndex = "Raven/TemporalRevisions/Pending";
     }
 }

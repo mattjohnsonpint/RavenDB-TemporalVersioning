@@ -83,6 +83,19 @@ namespace Raven.Bundles.Tests.TemporalVersioning
 
                     Assert.Equal(currentTemporal.EffectiveStart, currentTemporal.AssertedStart);
                     Assert.Equal(DateTimeOffset.MaxValue, currentTemporal.AssertedUntil);
+
+                    var history = session.Advanced.GetTemporalHistoryFor(id);
+                    Assert.NotNull(history);
+                    Assert.Equal(1, history.Revisions.Count);
+                    var rev = history.Revisions[0];
+                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 1, rev.Key);
+                    Assert.Equal(currentTemporal.EffectiveStart, rev.EffectiveStart);
+                    Assert.Equal(currentTemporal.EffectiveUntil, rev.EffectiveUntil);
+                    Assert.Equal(currentTemporal.AssertedStart, rev.AssertedStart);
+                    Assert.Equal(currentTemporal.AssertedUntil, rev.AssertedUntil);
+                    Assert.Equal(TemporalStatus.Revision, rev.Status);
+                    Assert.Equal(false, rev.Deleted);
+                    Assert.Equal(false, rev.Pending);
                 }
             }
         }
@@ -296,6 +309,28 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     if (version2Temporal.AssertedStart == null) return;
                     Assert.InRange(version2Temporal.AssertedStart.Value, beforeSave2, afterSave2);
                     Assert.Equal(DateTimeOffset.MaxValue, version2Temporal.AssertedUntil);
+
+                    var history = session.Advanced.GetTemporalHistoryFor(id);
+                    Assert.NotNull(history);
+                    Assert.Equal(2, history.Revisions.Count);
+                    var rev1 = history.Revisions[0];
+                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 1, rev1.Key);
+                    Assert.Equal(version1Temporal.EffectiveStart, rev1.EffectiveStart);
+                    Assert.Equal(version1Temporal.EffectiveUntil, rev1.EffectiveUntil);
+                    Assert.Equal(version1Temporal.AssertedStart, rev1.AssertedStart);
+                    Assert.Equal(version1Temporal.AssertedUntil, rev1.AssertedUntil);
+                    Assert.Equal(version1Temporal.Status, rev1.Status);
+                    Assert.Equal(version1Temporal.Deleted, rev1.Deleted);
+                    Assert.Equal(version1Temporal.Pending, rev1.Pending);
+                    var rev2 = history.Revisions[1];
+                    Assert.Equal(id + TemporalConstants.TemporalKeySeparator + 2, rev2.Key);
+                    Assert.Equal(version2Temporal.EffectiveStart, rev2.EffectiveStart);
+                    Assert.Equal(version2Temporal.EffectiveUntil, rev2.EffectiveUntil);
+                    Assert.Equal(version2Temporal.AssertedStart, rev2.AssertedStart);
+                    Assert.Equal(version2Temporal.AssertedUntil, rev2.AssertedUntil);
+                    Assert.Equal(version2Temporal.Status, rev2.Status);
+                    Assert.Equal(version2Temporal.Deleted, rev2.Deleted);
+                    Assert.Equal(version2Temporal.Pending, rev2.Pending);
                 }
             }
         }
@@ -336,6 +371,8 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.Equal(TemporalStatus.Current, currentTemporal.Status);
                     Assert.Equal(1, currentTemporal.RevisionNumber);
                 }
+
+                WaitForUserToContinueTheTest(documentStore);
 
                 // wait for activation - allow a little extra time for the activator to complete
                 Thread.Sleep(2500);

@@ -53,6 +53,9 @@
     <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalExtensions.cs">
       <Link>Common\TemporalExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalHistory.cs">
+      <Link>Common\TemporalHistory.cs</Link>
+    </Compile>
     <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalMetadata.cs">
       <Link>Common\TemporalMetadata.cs</Link>
     </Compile>

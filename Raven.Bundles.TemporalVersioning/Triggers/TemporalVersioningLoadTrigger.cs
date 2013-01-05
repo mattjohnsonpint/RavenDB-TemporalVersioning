@@ -20,7 +20,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
 
         private readonly ThreadLocal<string> _effectiveVersionKey = new ThreadLocal<string>();
         private readonly ThreadLocal<bool> _temporalVersioningEnabled = new ThreadLocal<bool>();
-        private readonly ThreadLocal<DateTime> _now = new ThreadLocal<DateTime>(); 
+        private readonly ThreadLocal<DateTime> _now = new ThreadLocal<DateTime>();
 
         public override ReadVetoResult AllowRead(string key, RavenJObject metadata, ReadOperation operation, TransactionInformation transactionInformation)
         {
@@ -63,23 +63,21 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             if (temporal.EffectiveStart <= effectiveDate && effectiveDate < temporal.EffectiveUntil)
                 return ReadVetoResult.Allowed;
 
-            // Now we have to go find the active revision.
-            using (Database.DisableAllTriggersForCurrentThread())
-            {
-                // Find the version that is effective at the date requested
-                var evKey = TemporalRevisionsIndex.GetActiveRevision(Database, key, effectiveDate);
+            // Load the history doc
+            Guid? historyEtag;
+            var history = Database.GetTemporalHistoryFor(key, transactionInformation, out historyEtag);
 
-                // Make sure we got something
-                if (evKey != null)
-                {
-                    // Hold on to the key so we can use it later in OnRead
-                    _effectiveVersionKey.Value = evKey;
-                    return ReadVetoResult.Allowed;
-                }
-            }
+            // Find the version that is effective at the date requested
+            var effectiveRevisionInfo = history.Revisions.FirstOrDefault(x => x.Status == TemporalStatus.Revision &&
+                                                                              x.EffectiveStart <= effectiveDate &&
+                                                                              x.EffectiveUntil > effectiveDate);
+            // Return nothing if there is no revision at the effective date
+            if (effectiveRevisionInfo == null)
+                return ReadVetoResult.Ignore;
 
-            // There is no revision at the effective date
-            return ReadVetoResult.Ignore;
+            // Hold on to the key so we can use it later in OnRead
+            _effectiveVersionKey.Value = effectiveRevisionInfo.Key;
+            return ReadVetoResult.Allowed;
         }
 
         public override void OnRead(string key, RavenJObject document, RavenJObject metadata, ReadOperation operation,

@@ -32,17 +32,49 @@ namespace Raven.Bundles.TemporalVersioning
             }
         }
 
+        public static TemporalHistory GetTemporalHistoryFor(this DocumentDatabase database, string key, TransactionInformation transactionInformation, out Guid? etag)
+        {
+            using (database.DisableAllTriggersForCurrentThread())
+            {
+                var doc = database.Get(TemporalHistory.GetKeyFor(key), transactionInformation);
+                if (doc == null)
+                {
+                    etag = null;
+                    return new TemporalHistory();
+                }
+
+                etag = doc.Etag;
+                return doc.DataAsJson.JsonDeserialization<TemporalHistory>();
+            }
+        }
+
+        public static void SaveTemporalHistoryFor(this DocumentDatabase database, string key, TemporalHistory history, TransactionInformation transactionInformation, Guid? etag)
+        {
+            using (database.DisableAllTriggersForCurrentThread())
+            {
+                var document = RavenJObject.FromObject(history);
+                var metadata = new RavenJObject();
+                database.Put(TemporalHistory.GetKeyFor(key), etag, document, metadata, transactionInformation);
+            }
+        }
+
         public static bool IsTemporalVersioningEnabled(this DocumentDatabase database, string key, RavenJObject metadata)
         {
+            if (key == null)
+                return false;
+
             // Don't ever version raven system documents.
-            if (key != null && key.StartsWith("Raven/", StringComparison.InvariantCultureIgnoreCase))
+            if (key.StartsWith("Raven/", StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
             // Don't version this one from the test helpers either.
             if (key == "Pls Delete Me")
                 return false;
 
+            // Don't version any doc that isn't an entity.
             var entityName = metadata.Value<string>(Constants.RavenEntityName);
+            if (entityName == null)
+                return false;
 
             bool enabled;
             if (ConfigCache.TryGetValue(entityName, out enabled))
@@ -86,33 +118,33 @@ namespace Raven.Bundles.TemporalVersioning
             //
 
             var task = Task.Factory.StartNew(() =>
-            {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-
-                while (true)
                 {
-                    if (database.Disposed)
-                        break;
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
 
-                    var stale = true;
-                    database.TransactionalStorage.Batch(x =>
+                    while (true)
                     {
-                        stale = x.Staleness.IsIndexStale(name, cutOff, cutoffEtag);
-                    });
+                        if (database.Disposed)
+                            break;
 
-                    if (!stale)
-                        break;
+                        var stale = true;
+                        database.TransactionalStorage.Batch(x =>
+                            {
+                                stale = x.Staleness.IsIndexStale(name, cutOff, cutoffEtag);
+                            });
 
-                    if (stopwatch.Elapsed >= TimeSpan.FromSeconds(30))
-                        throw new TimeoutException(
-                            string.Format("Over 30 seconds have elapsed while waiting for the \"{0}\" index to catch up.", name));
+                        if (!stale)
+                            break;
 
-                    Thread.Sleep(100);
-                }
+                        if (stopwatch.Elapsed >= TimeSpan.FromSeconds(30))
+                            throw new TimeoutException(
+                                string.Format("Over 30 seconds have elapsed while waiting for the \"{0}\" index to catch up.", name));
 
-                stopwatch.Stop();
-            });
+                        Thread.Sleep(100);
+                    }
+
+                    stopwatch.Stop();
+                });
             task.Wait();
         }
     }

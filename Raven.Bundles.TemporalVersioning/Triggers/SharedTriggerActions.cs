@@ -37,29 +37,49 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             // Get the revision number that was generated
             var revisionNumber = int.Parse(newRevisionDoc.Key.Split('/').Last());
 
+            // Get the history doc and add this revision
+            Guid? historyEtag;
+            var history = database.GetTemporalHistoryFor(key, transactionInformation, out historyEtag);
+            history.AddRevision(newRevisionDoc.Key, temporal);
+
             if (revisionNumber > 1)
             {
-                // Clear any revisions that already exist on or after the new effective date
-                var futureRevisions = TemporalRevisionsIndex.GetFutureRevisions(database, key, effective).Where(x => x != newRevisionDoc.Key);
-                foreach (var revisionKey in futureRevisions)
+                // Artifact any revisions that already exist on or after the new effective date
+                var futureRevisions = history.Revisions.Where(x => x.Key != newRevisionDoc.Key &&
+                                                                   x.Status == TemporalStatus.Revision &&
+                                                                   x.EffectiveStart >= effective);
+                foreach (var revisionInfo in futureRevisions)
                 {
-                    database.SetDocumentMetadata(revisionKey, transactionInformation,
+                    // in the history
+                    revisionInfo.Status = TemporalStatus.Artifact;
+
+                    // on the revision doc
+                    database.SetDocumentMetadata(revisionInfo.Key, transactionInformation,
                                                  TemporalMetadata.RavenDocumentTemporalStatus,
                                                  TemporalStatus.Artifact.ToString());
                 }
 
                 // Update the until date of the last version prior to this one
-                var lastRevision = TemporalRevisionsIndex.GetLastRevision(database, key, effective);
+                var lastRevision = history.Revisions.LastOrDefault(x => x.Key != newRevisionDoc.Key &&
+                                                                        x.Status == TemporalStatus.Revision &&
+                                                                        x.EffectiveStart < effective);
                 if (lastRevision != null)
                 {
+                    // in the history
+                    lastRevision.EffectiveUntil = effective;
+                    lastRevision.AssertedUntil = now;
+
+                    // on the revision doc
                     var md = new Dictionary<string, RavenJToken> {
                                                                      { TemporalMetadata.RavenDocumentTemporalEffectiveUntil, effective },
                                                                      { TemporalMetadata.RavenDocumentTemporalAssertedUntil, now }
                                                                  };
-
-                    database.SetDocumentMetadata(lastRevision, transactionInformation, md);
+                    database.SetDocumentMetadata(lastRevision.Key, transactionInformation, md);
                 }
             }
+
+            // Update the history doc
+            database.SaveTemporalHistoryFor(key, history, transactionInformation, historyEtag);
 
             // Reset the activation timer with each put.
             // This is so future revisions can become current without having to constantly poll.

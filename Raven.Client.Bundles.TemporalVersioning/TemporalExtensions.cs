@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Raven.Abstractions.Data;
+using Raven.Abstractions.Extensions;
 using Raven.Client.Bundles.TemporalVersioning.Common;
+using Raven.Client.Connection;
 using Raven.Client.Document;
 using Raven.Client.Listeners;
 
@@ -60,6 +62,19 @@ namespace Raven.Client.Bundles.TemporalVersioning
             return jsonDocuments
                 .Select(document => document.Key)
                 .ToArray();
+        }
+
+        public static TemporalHistory GetTemporalHistoryFor(this IAdvancedDocumentSessionOperations session, string id)
+        {
+            var key = TemporalHistory.GetKeyFor(id);
+            var history = ((IDocumentSession) session).Load<TemporalHistory>(key);
+            if (history != null)
+            {
+                // don't track it in the session
+                session.Evict(history);
+            }
+
+            return history;
         }
 
         public static ISyncTemporalSessionOperation Effective(this IDocumentSession session, DateTimeOffset effectiveDate)
