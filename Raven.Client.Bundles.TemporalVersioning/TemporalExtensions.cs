@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Raven.Abstractions.Data;
-using Raven.Abstractions.Extensions;
 using Raven.Client.Bundles.TemporalVersioning.Common;
-using Raven.Client.Connection;
 using Raven.Client.Document;
 using Raven.Client.Listeners;
 
@@ -46,31 +44,28 @@ namespace Raven.Client.Bundles.TemporalVersioning
             inMemoryDocumentSessionOperations.Store(configuration);
         }
 
-        public static T[] GetTemporalRevisionsFor<T>(this ISyncAdvancedSessionOperation session, string id, int start, int pageSize)
-        {
-            var inMemoryDocumentSessionOperations = ((InMemoryDocumentSessionOperations) session);
-            var jsonDocuments = ((DocumentSession) session).DatabaseCommands.StartsWith(id + TemporalConstants.TemporalKeySeparator, null, start, pageSize);
-            return jsonDocuments
-                .Select(inMemoryDocumentSessionOperations.TrackEntity<T>)
-                .ToArray();
-        }
-
-        public static string[] GetTemporalRevisionIdsFor(this ISyncAdvancedSessionOperation session, string id, int start, int pageSize)
-        {
-            var jsonDocuments = ((DocumentSession) session).DatabaseCommands.StartsWith(id + TemporalConstants.TemporalKeySeparator, null, start, pageSize,
-                                                                                        metadataOnly: true);
-            return jsonDocuments
-                .Select(document => document.Key)
-                .ToArray();
-        }
-
+        /// <summary>
+        /// Gets a document containing all of the temporal metadata for every revision of a document.
+        /// </summary>
+        /// <param name="session">The advanced session.</param>
+        /// <param name="id">The non-temporal document id.</param>
+        /// <returns>A TemporalHistory document.</returns>
         public static TemporalHistory GetTemporalHistoryFor(this IAdvancedDocumentSessionOperations session, string id)
         {
+            if (string.IsNullOrEmpty(id))
+                throw new ArgumentNullException("id");
+
+            if (id.IndexOf(TemporalConstants.TemporalKeySeparator, StringComparison.OrdinalIgnoreCase) != -1)
+                throw new ArgumentException("Pass the non-temporal id, not a temporal revisions key.");
+
+            if (id.StartsWith("Raven/", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Raven system docs can not be versioned.");
+
             var key = TemporalHistory.GetKeyFor(id);
             var history = ((IDocumentSession) session).Load<TemporalHistory>(key);
             if (history != null)
             {
-                // don't track it in the session
+                // don't track this in the session
                 session.Evict(history);
             }
 
