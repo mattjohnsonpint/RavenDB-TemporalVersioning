@@ -64,6 +64,10 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 temporal.EffectiveStart = temporal.Effective;
                 temporal.EffectiveUntil = DateTimeOffset.MaxValue;
 
+                // Set the asserted dates
+                temporal.AssertedStart = _now.Value;
+                temporal.AssertedUntil = DateTimeOffset.MaxValue;
+
                 // See if the revision we're saving is current.
                 var current = temporal.Effective <= _now.Value;
 

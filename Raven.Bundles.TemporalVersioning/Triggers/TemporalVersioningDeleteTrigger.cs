@@ -50,8 +50,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 temporal.EffectiveStart = effectiveDate;
                 temporal.EffectiveUntil = DateTimeOffset.MaxValue;
 
-                // Put the deleted revision
+                // Set the asserted dates
                 var now = SystemTime.UtcNow;
+                temporal.AssertedStart = now;
+                temporal.AssertedUntil = DateTimeOffset.MaxValue;
+
+                // Put the deleted revision
                 Database.PutRevision(key, document.DataAsJson, document.Metadata, transactionInformation, now, deleted: true);
 
                 // If we are deleting at some future date, then hold on to a copy so we can restore it after it gets deleted.

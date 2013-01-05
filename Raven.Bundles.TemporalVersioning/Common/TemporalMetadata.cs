@@ -12,6 +12,8 @@ namespace Raven.Bundles.TemporalVersioning.Common
         public const string RavenTemporalEffective = "Raven-Temporal-Effective";
         public const string RavenDocumentTemporalRevision = "Raven-Document-Temporal-Revision";
         public const string RavenDocumentTemporalStatus = "Raven-Document-Temporal-Status";
+        public const string RavenDocumentTemporalAssertedStart = "Raven-Document-Temporal-Asserted-Start";
+        public const string RavenDocumentTemporalAssertedUntil = "Raven-Document-Temporal-Asserted-Until";
         public const string RavenDocumentTemporalEffectiveStart = "Raven-Document-Temporal-Effective-Start";
         public const string RavenDocumentTemporalEffectiveUntil = "Raven-Document-Temporal-Effective-Until";
         public const string RavenDocumentTemporalDeleted = "Raven-Document-Temporal-Deleted";
@@ -116,6 +118,34 @@ namespace Raven.Bundles.TemporalVersioning.Common
             set
             {
                 const string key = RavenDocumentTemporalEffectiveUntil;
+
+                if (value.HasValue)
+                    _metadata[key] = value.Value;
+                else if (_metadata.ContainsKey(key))
+                    _metadata.Remove(key);
+            }
+        }
+
+        public DateTimeOffset? AssertedStart
+        {
+            get { return _metadata.Value<DateTimeOffset?>(RavenDocumentTemporalAssertedStart); }
+            set
+            {
+                const string key = RavenDocumentTemporalAssertedStart;
+
+                if (value.HasValue)
+                    _metadata[key] = value.Value;
+                else if (_metadata.ContainsKey(key))
+                    _metadata.Remove(key);
+            }
+        }
+
+        public DateTimeOffset? AssertedUntil
+        {
+            get { return _metadata.Value<DateTimeOffset?>(RavenDocumentTemporalAssertedUntil); }
+            set
+            {
+                const string key = RavenDocumentTemporalAssertedUntil;
 
                 if (value.HasValue)
                     _metadata[key] = value.Value;

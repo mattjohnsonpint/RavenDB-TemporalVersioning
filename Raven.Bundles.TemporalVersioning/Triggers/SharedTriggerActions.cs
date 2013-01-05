@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Raven.Abstractions.Data;
 using Raven.Abstractions.Logging;
@@ -51,9 +52,12 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 var lastRevision = TemporalRevisionsIndex.GetLastRevision(database, key, effective);
                 if (lastRevision != null)
                 {
-                    database.SetDocumentMetadata(lastRevision, transactionInformation,
-                                                 TemporalMetadata.RavenDocumentTemporalEffectiveUntil,
-                                                 effective);
+                    var md = new Dictionary<string, RavenJToken> {
+                                                                     { TemporalMetadata.RavenDocumentTemporalEffectiveUntil, effective },
+                                                                     { TemporalMetadata.RavenDocumentTemporalAssertedUntil, now }
+                                                                 };
+
+                    database.SetDocumentMetadata(lastRevision, transactionInformation, md);
                 }
             }
 

@@ -77,6 +77,12 @@ namespace Raven.Bundles.Tests.TemporalVersioning
 
                     Assert.NotNull(currentTemporal.EffectiveStart);
                     if (currentTemporal.EffectiveStart == null) return;
+
+                    Assert.InRange(currentTemporal.EffectiveStart.Value, beforeSave, afterSave);
+                    Assert.Equal(DateTimeOffset.MaxValue, currentTemporal.EffectiveUntil);
+
+                    Assert.Equal(currentTemporal.EffectiveStart, currentTemporal.AssertedStart);
+                    Assert.Equal(DateTimeOffset.MaxValue, currentTemporal.AssertedUntil);
                 }
             }
         }
@@ -86,6 +92,8 @@ namespace Raven.Bundles.Tests.TemporalVersioning
         {
             using (var documentStore = this.GetTemporalDocumentStore())
             {
+                DateTimeOffset beforeSave, afterSave;
+
                 const string id = "employees/1";
                 var effectiveDate1 = new DateTimeOffset(new DateTime(2012, 1, 1));
                 using (var session = documentStore.OpenSession())
@@ -93,7 +101,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
 
+                    beforeSave = DateTimeOffset.UtcNow;
                     session.SaveChanges();
+                    afterSave = DateTimeOffset.UtcNow;
                 }
 
                 // Check the results
@@ -120,6 +130,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.Equal(effectiveDate1, version1Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version1Temporal.EffectiveUntil);
                     Assert.Equal(1, version1Temporal.RevisionNumber);
+
+                    Assert.NotNull(version1Temporal.AssertedStart);
+                    if (version1Temporal.AssertedStart == null) return;
+                    Assert.InRange(version1Temporal.AssertedStart.Value, beforeSave, afterSave);
+                    Assert.Equal(DateTimeOffset.MaxValue, version1Temporal.AssertedUntil);
                 }
             }
         }
@@ -129,6 +144,8 @@ namespace Raven.Bundles.Tests.TemporalVersioning
         {
             using (var documentStore = this.GetTemporalDocumentStore())
             {
+                DateTimeOffset beforeSave, afterSave;
+
                 const string id = "employees/1";
                 var effectiveDate1 = DateTimeOffset.Now.AddYears(1);
                 using (var session = documentStore.OpenSession())
@@ -136,7 +153,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
 
+                    beforeSave = DateTimeOffset.UtcNow;
                     session.SaveChanges();
+                    afterSave = DateTimeOffset.UtcNow;
                 }
 
                 // Check the results
@@ -159,6 +178,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.Equal(effectiveDate1, version1Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version1Temporal.EffectiveUntil);
                     Assert.Equal(1, version1Temporal.RevisionNumber);
+
+                    Assert.NotNull(version1Temporal.AssertedStart);
+                    if (version1Temporal.AssertedStart == null) return;
+                    Assert.InRange(version1Temporal.AssertedStart.Value, beforeSave, afterSave);
+                    Assert.Equal(DateTimeOffset.MaxValue, version1Temporal.AssertedUntil);
                 }
             }
         }
@@ -202,6 +226,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
         {
             using (var documentStore = this.GetTemporalDocumentStore())
             {
+                DateTimeOffset beforeSave1, afterSave1;
+                DateTimeOffset beforeSave2, afterSave2;
+
                 const string id = "employees/1";
                 var effectiveDate1 = new DateTimeOffset(new DateTime(2012, 1, 1));
                 using (var session = documentStore.OpenSession())
@@ -209,7 +236,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var employee = new Employee { Id = id, Name = "John", PayRate = 10 };
                     session.Effective(effectiveDate1).Store(employee);
 
+                    beforeSave1 = DateTimeOffset.UtcNow;
                     session.SaveChanges();
+                    afterSave1 = DateTimeOffset.UtcNow;
                 }
 
                 // Make some changes
@@ -219,7 +248,9 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     var employee = session.Effective(effectiveDate2).Load<Employee>(id);
                     employee.PayRate = 20;
 
+                    beforeSave2 = DateTimeOffset.UtcNow;
                     session.SaveChanges();
+                    afterSave2 = DateTimeOffset.UtcNow;
                 }
 
                 // Check the results
@@ -248,12 +279,23 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.Equal(effectiveDate2, version1Temporal.EffectiveUntil);
                     Assert.Equal(1, version1Temporal.RevisionNumber);
 
+                    Assert.NotNull(version1Temporal.AssertedStart);
+                    Assert.NotNull(version1Temporal.AssertedUntil);
+                    if (version1Temporal.AssertedStart == null || version1Temporal.AssertedUntil == null) return;
+                    Assert.InRange(version1Temporal.AssertedStart.Value, beforeSave1, afterSave1);
+                    Assert.InRange(version1Temporal.AssertedUntil.Value, beforeSave2, afterSave2);
+
                     var version2Temporal = session.Advanced.GetTemporalMetadataFor(revisions[1]);
                     Assert.Equal(TemporalStatus.Revision, version2Temporal.Status);
                     Assert.False(version2Temporal.Deleted);
                     Assert.Equal(effectiveDate2, version2Temporal.EffectiveStart);
                     Assert.Equal(DateTimeOffset.MaxValue, version2Temporal.EffectiveUntil);
                     Assert.Equal(2, version2Temporal.RevisionNumber);
+
+                    Assert.NotNull(version2Temporal.AssertedStart);
+                    if (version2Temporal.AssertedStart == null) return;
+                    Assert.InRange(version2Temporal.AssertedStart.Value, beforeSave2, afterSave2);
+                    Assert.Equal(DateTimeOffset.MaxValue, version2Temporal.AssertedUntil);
                 }
             }
         }

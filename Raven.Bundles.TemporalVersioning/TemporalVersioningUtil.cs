@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,11 +55,20 @@ namespace Raven.Bundles.TemporalVersioning
             return enabled;
         }
 
-        public static void SetDocumentMetadata(this DocumentDatabase database, string key, TransactionInformation transactionInformation, string metadataName,
-                                                 RavenJToken metadataValue)
+        public static void SetDocumentMetadata(this DocumentDatabase database, string key, TransactionInformation transactionInformation,
+                                               string metadataName, RavenJToken metadataValue)
         {
             var metadata = database.GetDocumentMetadata(key, transactionInformation).Metadata;
             metadata[metadataName] = metadataValue;
+            database.PutDocumentMetadata(key, metadata);
+        }
+
+        public static void SetDocumentMetadata(this DocumentDatabase database, string key, TransactionInformation transactionInformation,
+                                               IDictionary<string, RavenJToken> metadataToSet)
+        {
+            var metadata = database.GetDocumentMetadata(key, transactionInformation).Metadata;
+            foreach (var item in metadataToSet)
+                metadata[item.Key] = item.Value;
             database.PutDocumentMetadata(key, metadata);
         }
 
