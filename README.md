@@ -113,7 +113,7 @@ It doesn't matter what offset you provide, as things will be converted to UTC wh
 - It is much easier just to pass a `DateTimeOffset` instance.  They are unambiguous. 
 - Be aware that two `DateTimeOffset` values are equal if their UTC converted times are equal.  For example, `2012-01-01T00:00:00+00:00` and `2012-01-01T02:00:00+02:00` refer to the same instantaneous moment, and are therefore equivalent.  You can use an offset that is contextually relevant for your own purposes without regard to conversion.  If you have no context, or just don't care, then use UTC.
 - RavenDB stores all `DateTime` and `DateTimeOffset` value in ISO8601 format.  This is available in .Net via  the round trip string formatter, `.ToString("o")`.
-- A `DateTimeOffset` in a Raven document or metadata will maintain its offset, but when used in an index map, it will be converted to a UTC `DateTime`.  This is important and desired behavior such that sorting and filtering still honors the equality behavior described earlier.
+- A `DateTimeOffset` in a Raven document or metadata will maintain its offset, but when used in an index map, it will be converted to a UTC `DateTime`.  This is important and desired behavior such that sorting and filtering is alwways done over *instantaneous time*.
 
 ### Temporal Session Operations
 
@@ -132,9 +132,9 @@ For those familiar with the concepts of *bi-temporal* data, this bundle is mostl
 
 ##### Document Revisions and the Temporal Activator
 
-Whenever you write a new revision for `foos/1`, the data is really stored at `foos/1/temporalrevisions/1`.  The `foos/1` is a virtual reference that means "get me the current data".
+Whenever you write a new revision for `foos/1`, the data is really stored at `foos/1/temporalrevisions/1`.  The `foos/1` is a convention that means "get me the current data".  It refers to a copy of whatever revision document is *effective now*.
 
-The Temporal Versioning bundle includes a server-side *Activator*, which is a background task responsible for making sure that the current revision is always accessible by its direct document key, by waiting for the appropriate time to copy the revision document back to the root document.
+The Temporal Versioning bundle includes a server-side *Activator*, which is a background task responsible for making sure that the current revision is always accessible by its direct document key, by waiting for the appropriate time to copy the revision document back to the current document.
 
 For example, I may have revision 1 effective at 1:00 and revision 2 effective at 4:00.  It's now 3:00 so when I load `foos/1` I will get back the first revision.  If I wait until 4:00 passes and load `foos/1` again, I'll get the second revision.  If I examine the database, I'll actually find three copies of the data.  In addition to `foos/1`, there will be `foos/1/temporalrevisions/1` and `foos/1/temporalrevisions/2`.  `foos/1` is always a current copy.  
 
@@ -412,7 +412,7 @@ The `DateTimeOffset` that the document revision was originally asserted.
 The `DateTimeOffset` that the document revision is asserted until.
 
 **Note:** - The *Start* and *Until* dates form an inclusive/exclusive range over instantaneous time.  
-Using [interval notation](http://en.wikipedia.org/wiki/Interval_%28mathematics%29#Notations_for_intervals) -  `[start, until)`
+Using [interval notation](http://en.wikipedia.org/wiki/Interval_%28mathematics%29#Notations_for_intervals),  `[start, until)`
 
 - `Raven-Document-Temporal-Deleted`  
 A `true` or `false` value indicating if this revision represents a deletion.
