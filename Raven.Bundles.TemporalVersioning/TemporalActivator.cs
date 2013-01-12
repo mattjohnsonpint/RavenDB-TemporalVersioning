@@ -27,13 +27,17 @@ namespace Raven.Bundles.TemporalVersioning
 
         public void Execute(DocumentDatabase database)
         {
+            // don't do anything if the bundle is not enabled
+            var activeBundles = database.Configuration.Settings[Constants.ActiveBundles];
+            if (activeBundles == null || !activeBundles.Split(';').Contains(TemporalConstants.BundleName, StringComparer.OrdinalIgnoreCase))
+                return;
+
             _database = database;
 
             PendingRevisionsIndex.CreateIndex(database);
 
-            var runDate = PendingRevisionsIndex.GetNextActivationDate(_database);
-
-            ResetTimer(runDate, SystemTime.UtcNow);
+            var now = SystemTime.UtcNow;
+            ResetTimer(now, now);
         }
 
         public void Dispose()
@@ -125,7 +129,7 @@ namespace Raven.Bundles.TemporalVersioning
                     var history = _database.GetTemporalHistoryFor(currentKey, transactionInformation, out historyEtag);
                     history.Revisions.First(x => x.Key == revisionkey).Pending = false;
                     _database.SaveTemporalHistoryFor(currentKey, history, transactionInformation, historyEtag);
-                    
+
                     // Load the new revisions document
                     var newRevisionDoc = _database.Get(revisionkey, transactionInformation);
                     var temporal = newRevisionDoc.Metadata.GetTemporalMetadata();
