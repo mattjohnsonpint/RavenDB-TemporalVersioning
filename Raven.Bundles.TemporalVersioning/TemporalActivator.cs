@@ -27,9 +27,7 @@ namespace Raven.Bundles.TemporalVersioning
 
         public void Execute(DocumentDatabase database)
         {
-            // don't do anything if the bundle is not enabled
-            var activeBundles = database.Configuration.Settings[Constants.ActiveBundles];
-            if (activeBundles == null || !activeBundles.Split(';').Contains(TemporalConstants.BundleName, StringComparer.OrdinalIgnoreCase))
+            if (!database.IsBundleActive(TemporalConstants.BundleName))
                 return;
 
             _database = database;

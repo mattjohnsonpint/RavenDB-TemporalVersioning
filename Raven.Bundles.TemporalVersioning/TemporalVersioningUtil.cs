@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Raven.Abstractions.Data;
@@ -128,6 +129,20 @@ namespace Raven.Bundles.TemporalVersioning
             }
 
             stopwatch.Stop();
+        }
+
+        public static bool IsBundleActive(this DocumentDatabase database, string bundleName)
+        {
+            var assembliesLoaded = AppDomain.CurrentDomain.GetAssemblies();
+            var embeddedMode = assembliesLoaded.Any(x => x.GetName().Name.Contains("Raven.Client.Embedded"));
+            if (embeddedMode)
+                return true;
+
+            var activeBundles = database.Configuration.Settings[Constants.ActiveBundles];
+            if (activeBundles == null || !activeBundles.Split(';').Contains(bundleName, StringComparer.OrdinalIgnoreCase))
+                return true;
+
+            return false;
         }
     }
 }
