@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Raven.Abstractions.Data;
 using Raven.Abstractions.Extensions;
 using Raven.Bundles.TemporalVersioning.Common;
@@ -33,7 +32,8 @@ namespace Raven.Bundles.TemporalVersioning
             }
         }
 
-        public static TemporalHistory GetTemporalHistoryFor(this DocumentDatabase database, string key, TransactionInformation transactionInformation, out Guid? etag)
+        public static TemporalHistory GetTemporalHistoryFor(this DocumentDatabase database, string key, TransactionInformation transactionInformation,
+                                                            out Guid? etag)
         {
             using (database.DisableAllTriggersForCurrentThread())
             {
@@ -49,7 +49,8 @@ namespace Raven.Bundles.TemporalVersioning
             }
         }
 
-        public static void SaveTemporalHistoryFor(this DocumentDatabase database, string key, TemporalHistory history, TransactionInformation transactionInformation, Guid? etag)
+        public static void SaveTemporalHistoryFor(this DocumentDatabase database, string key, TemporalHistory history,
+                                                  TransactionInformation transactionInformation, Guid? etag)
         {
             using (database.DisableAllTriggersForCurrentThread())
             {
@@ -116,7 +117,10 @@ namespace Raven.Bundles.TemporalVersioning
                     break;
 
                 var stale = true;
-                database.TransactionalStorage.Batch(x => { stale = x.Staleness.IsIndexStale(name, cutOff, cutoffEtag); });
+                database.TransactionalStorage.Batch(x =>
+                    {
+                        stale = x.Staleness.IsIndexStale(name, cutOff, cutoffEtag);
+                    });
 
                 if (!stale)
                     break;
