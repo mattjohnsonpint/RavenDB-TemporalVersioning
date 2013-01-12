@@ -123,9 +123,9 @@ namespace Raven.Client.Bundles.TemporalVersioning
                     activeBundles = bundleName;
                 else
                 {
-                    if (activeBundles.Split(',').Contains(bundleName, StringComparer.OrdinalIgnoreCase))
+                    if (activeBundles.Split(';').Contains(bundleName, StringComparer.OrdinalIgnoreCase))
                         return;
-                    activeBundles += "," + bundleName;
+                    activeBundles += ";" + bundleName;
                 }
                 settings[Constants.ActiveBundles] = activeBundles;
 
