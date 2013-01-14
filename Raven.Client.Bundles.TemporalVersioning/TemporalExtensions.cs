@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Raven.Abstractions.Data;
-using Raven.Abstractions.Extensions;
 using Raven.Client.Bundles.TemporalVersioning.Common;
-using Raven.Client.Connection;
 using Raven.Client.Document;
 using Raven.Client.Listeners;
 
@@ -39,10 +37,11 @@ namespace Raven.Client.Bundles.TemporalVersioning
         private static void ConfigureTemporalVersioning(this IAdvancedDocumentSessionOperations session, bool enabled, string entityName)
         {
             var inMemoryDocumentSessionOperations = ((InMemoryDocumentSessionOperations) session);
-            var configuration = new TemporalVersioningConfiguration {
-                                                                        Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
-                                                                        Enabled = enabled
-                                                                    };
+            var configuration = new TemporalVersioningConfiguration
+                {
+                    Id = String.Format("Raven/{0}/{1}", TemporalConstants.BundleName, entityName),
+                    Enabled = enabled
+                };
             inMemoryDocumentSessionOperations.Store(configuration);
         }
 
@@ -73,7 +72,7 @@ namespace Raven.Client.Bundles.TemporalVersioning
                 throw new ArgumentException("Raven system docs can not be versioned.");
 
             var key = TemporalHistory.GetKeyFor(id);
-            var history = ((IDocumentSession)session).Load<TemporalHistory>(key);
+            var history = ((IDocumentSession) session).Load<TemporalHistory>(key);
             if (history != null)
             {
                 // don't track this in the session
@@ -135,12 +134,12 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         public static IDocumentStore InitializeTemporalVersioning(this IDocumentStore documentStore)
         {
-            var store = (DocumentStoreBase)documentStore;
+            var store = (DocumentStoreBase) documentStore;
 
             var listener = new TemporalVersioningListener(store);
-            store.RegisterListener((IDocumentQueryListener)listener);
-            store.RegisterListener((IDocumentDeleteListener)listener);
-            store.RegisterListener((IDocumentConversionListener)listener);
+            store.RegisterListener((IDocumentQueryListener) listener);
+            store.RegisterListener((IDocumentDeleteListener) listener);
+            store.RegisterListener((IDocumentConversionListener) listener);
 
             return store;
         }
