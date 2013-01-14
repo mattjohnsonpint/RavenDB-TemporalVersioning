@@ -133,12 +133,16 @@ namespace Raven.Client.Bundles.TemporalVersioning
             }
         }
 
-        public static void InitializeTemporalVersioning(this DocumentStoreBase documentStore)
+        public static IDocumentStore InitializeTemporalVersioning(this IDocumentStore documentStore)
         {
-            var listener = new TemporalVersioningListener(documentStore);
-            documentStore.RegisterListener((IDocumentQueryListener) listener);
-            documentStore.RegisterListener((IDocumentDeleteListener) listener);
-            documentStore.RegisterListener((IDocumentConversionListener) listener);
+            var store = (DocumentStoreBase)documentStore;
+
+            var listener = new TemporalVersioningListener(store);
+            store.RegisterListener((IDocumentQueryListener)listener);
+            store.RegisterListener((IDocumentDeleteListener)listener);
+            store.RegisterListener((IDocumentConversionListener)listener);
+
+            return store;
         }
     }
 }
