@@ -118,10 +118,7 @@ namespace Raven.Bundles.TemporalVersioning
                     break;
 
                 var stale = true;
-                database.TransactionalStorage.Batch(x =>
-                    {
-                        stale = x.Staleness.IsIndexStale(name, cutOff, cutoffEtag);
-                    });
+                database.TransactionalStorage.Batch(x => { stale = x.Staleness.IsIndexStale(name, cutOff, cutoffEtag); });
 
                 if (!stale)
                     break;
