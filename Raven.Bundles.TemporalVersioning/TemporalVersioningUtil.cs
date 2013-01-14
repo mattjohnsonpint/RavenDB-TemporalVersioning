@@ -143,10 +143,7 @@ namespace Raven.Bundles.TemporalVersioning
                 return true;
 
             var activeBundles = database.Configuration.Settings[Constants.ActiveBundles];
-            if (activeBundles == null || !activeBundles.Split(';').Contains(bundleName, StringComparer.OrdinalIgnoreCase))
-                return true;
-
-            return false;
+            return activeBundles != null && activeBundles.Split(';').Contains(bundleName, StringComparer.OrdinalIgnoreCase);
         }
     }
 }
