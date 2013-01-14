@@ -49,6 +49,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Database.2.0.2230\lib\net40\Raven.Database.dll</HintPath>
     </Reference>
+    <Reference Include="Raven.Server">
+      <HintPath>..\packages\RavenDB.Server.2.0.2230\tools\Raven.Server.exe</HintPath>
+    </Reference>
     <Reference Include="Raven.Tests.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Tests.Helpers.2.0.2230\lib\net40\Raven.Tests.Helpers.dll</HintPath>
@@ -73,6 +76,7 @@
     <Compile Include="Indexes\Employees_CurrentCount.cs" />
     <Compile Include="Indexes\Employees_TemporalCount.cs" />
     <Compile Include="MigrationTests.cs" />
+    <Compile Include="MultitenantTests.cs" />
     <Compile Include="TemporalMapReduceQueryTests.cs" />
     <Compile Include="StaticQueryTests.cs" />
     <Compile Include="Extensions.cs" />
