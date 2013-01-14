@@ -229,8 +229,11 @@ If you want to *only* query current data, you can simply filter in the index and
         }
     }
 
-    // Returns only current results.  The bundle doesn't have to filter because the index contained only current data.
-    var results = session.Query<Foo, Foos_CurrentByBar>().Where(x=> x.Bar == 123);
+    // Returns only current results.  We must specifically disable temporal filtering, because the index contains only current data.
+    // Temporal filtering cannot work, because there are no revision documents in the index.
+    var results = session.Query<Foo, Foos_CurrentByBar>()
+	                     .Customize(x => x.DisableTemporalFiltering())
+	                     .Where(x=> x.Bar == 123);
 
 If you might be querying for current data sometimes, and non-current data at other times, then it makes more sense to index the temporal revisions.
 
