@@ -79,12 +79,13 @@ namespace Raven.Bundles.TemporalVersioning
                 return false;
 
             bool enabled;
-            if (ConfigCache.TryGetValue(entityName, out enabled))
+            var cacheKey = (database.Name ?? "") + ":" + entityName;
+            if (ConfigCache.TryGetValue(cacheKey, out enabled))
                 return enabled;
 
             var temporalVersioningConfiguration = database.GetTemporalVersioningConfiguration(entityName);
             enabled = temporalVersioningConfiguration != null && temporalVersioningConfiguration.Enabled;
-            ConfigCache.TryAdd(entityName, enabled);
+            ConfigCache.TryAdd(cacheKey, enabled);
 
             return enabled;
         }
