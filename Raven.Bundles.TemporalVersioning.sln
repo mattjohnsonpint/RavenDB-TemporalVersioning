@@ -26,6 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{66419A1A-D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{16F1ECBC-E90E-4B69-9857-02C2AC8293AD}"
 	ProjectSection(SolutionItems) = preProject
+		push-to-nuget.ps1 = push-to-nuget.ps1
 		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
 	EndProjectSection
 EndProject
