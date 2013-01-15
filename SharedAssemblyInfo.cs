@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Matt Johnson")]
 [assembly: AssemblyProduct("RavenDB Temporal Versioning Bundle")]
-[assembly: AssemblyCopyright("Copyright © 2012 Matt Johnson")]
+[assembly: AssemblyCopyright("Copyright © 2012-2013 Matt Johnson")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("2.0.7.3")]
-[assembly: AssemblyFileVersion("2.0.7.3")]
+[assembly: AssemblyVersion("2.0.7.4")]
+[assembly: AssemblyFileVersion("2.0.7.4")]
