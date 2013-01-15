@@ -136,6 +136,10 @@ namespace Raven.Client.Bundles.TemporalVersioning
         {
             var store = (DocumentStoreBase) documentStore;
 
+            // Don't allow the listener to be registered more than once.
+            if (store.RegisteredConversionListeners.OfType<TemporalVersioningListener>().Any())
+                return store;
+
             var listener = new TemporalVersioningListener(store);
             store.RegisterListener((IDocumentQueryListener) listener);
             store.RegisterListener((IDocumentDeleteListener) listener);
