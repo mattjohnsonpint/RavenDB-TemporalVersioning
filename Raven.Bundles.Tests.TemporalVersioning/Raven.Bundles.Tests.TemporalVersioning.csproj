@@ -49,7 +49,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Database.2.0.2230\lib\net40\Raven.Database.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Server">
+    <Reference Include="Raven.Server, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Server.2.0.2230\tools\Raven.Server.exe</HintPath>
     </Reference>
     <Reference Include="Raven.Tests.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
@@ -70,13 +71,42 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CurrentMapReduceQueryTests.cs" />
+    <Compile Include="Entities\Department.cs" />
+    <Compile Include="Entities\Division.cs" />
+    <Compile Include="Entities\PayCheck.cs" />
     <Compile Include="HttpTests.cs" />
+    <Compile Include="Indexes\Employees_ByManager.cs" />
+    <Compile Include="Indexes\CurrentEmployees_ByHiringManager.cs" />
+    <Compile Include="Indexes\Employees_ByHiringManager.cs" />
+    <Compile Include="Indexes\Employees_ByManagersCurrentName.cs" />
+    <Compile Include="Indexes\Employees_CurrentByManager.cs" />
+    <Compile Include="Indexes\Departments_BySupervisor.cs" />
+    <Compile Include="Indexes\Departments_ByDivision.cs" />
+    <Compile Include="Indexes\PayChecks_ByEmployee.cs" />
+    <Compile Include="Projections\EmployeeWithManager_OverRange.cs" />
+    <Compile Include="Projections\EmployeeWithManager.cs" />
+    <Compile Include="Projections\PayCheckWithEmployeeInfo.cs" />
+    <Compile Include="Projections\DepartmentWithSupervisor.cs" />
+    <Compile Include="Projections\DepartmentWithDivision.cs" />
+    <Compile Include="Indexes\Employees_ByDepartment.cs" />
+    <Compile Include="Indexes\Employees_CurrentByDepartment.cs" />
     <Compile Include="Indexes\Employees_RevisionsByName.cs" />
     <Compile Include="Indexes\Employees_CurrentByName.cs" />
     <Compile Include="Indexes\Employees_CurrentCount.cs" />
     <Compile Include="Indexes\Employees_TemporalCount.cs" />
+    <Compile Include="Projections\EmployeeWithDepartment.cs" />
     <Compile Include="MigrationTests.cs" />
     <Compile Include="MultitenantTests.cs" />
+    <Compile Include="RelationshipTests\Relationship_Tr_Tr.cs" />
+    <Compile Include="RelationshipTests\Relationship_Tr_Tx.cs" />
+    <Compile Include="RelationshipTests\Relationship_Tr_Tc.cs" />
+    <Compile Include="RelationshipTests\Relationship_Tr_Nt.cs" />
+    <Compile Include="RelationshipTests\Relationship_Tc_Tx.cs" />
+    <Compile Include="RelationshipTests\Relationship_Tc_Tc.cs" />
+    <Compile Include="RelationshipTests\Relationship_Tc_Nt.cs" />
+    <Compile Include="RelationshipTests\Relationship_Nt_Tx.cs" />
+    <Compile Include="RelationshipTests\Relationship_Nt_Tc.cs" />
+    <Compile Include="RelationshipTests\Relationship_Nt_Nt.cs" />
     <Compile Include="TemporalMapReduceQueryTests.cs" />
     <Compile Include="StaticQueryTests.cs" />
     <Compile Include="Extensions.cs" />

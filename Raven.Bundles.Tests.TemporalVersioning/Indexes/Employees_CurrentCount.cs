@@ -17,16 +17,18 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
             Map = employees => from employee in employees
                                let status = MetadataFor(employee).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
                                where status == TemporalStatus.Current
-                               select new {
-                                              Count = 1
-                                          };
+                               select new
+                                      {
+                                          Count = 1
+                                      };
 
             Reduce = results => from result in results
                                 group result by 0
                                 into g
-                                select new {
-                                               Count = g.Sum(x => x.Count)
-                                           };
+                                select new
+                                       {
+                                           Count = g.Sum(x => x.Count)
+                                       };
         }
     }
 }

@@ -58,11 +58,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning
 
                     var revisions = session.Advanced.GetTemporalRevisionsFor<Employee>(id, 0, 10);
 
-                    if (revisions.Length == 2)
-                    {
-                        WaitForUserToContinueTheTest(documentStore);
-                    }
-
                     Assert.Equal(1, revisions.Length);
 
                     Assert.Equal(id, revisions[0].Id);

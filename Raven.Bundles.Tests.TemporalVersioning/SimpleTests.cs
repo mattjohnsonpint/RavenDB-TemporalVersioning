@@ -372,8 +372,6 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     Assert.Equal(1, currentTemporal.RevisionNumber);
                 }
 
-                WaitForUserToContinueTheTest(documentStore);
-
                 // wait for activation - allow a little extra time for the activator to complete
                 Thread.Sleep(2500);
 

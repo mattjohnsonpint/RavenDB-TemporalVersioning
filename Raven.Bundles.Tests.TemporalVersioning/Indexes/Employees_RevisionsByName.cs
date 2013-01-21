@@ -16,10 +16,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
                                let status = MetadataFor(employee).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
                                let effective = MetadataFor(employee).Value<DateTime>(TemporalMetadata.RavenDocumentTemporalEffectiveStart)
                                where status == TemporalStatus.Revision
-                               select new {
-                                              employee.Name,
-                                              Effective = effective
-                                          };
+                               select new
+                                      {
+                                          employee.Name,
+                                          Effective = effective
+                                      };
         }
     }
 }

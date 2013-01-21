@@ -12,9 +12,10 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
             Map = employees => from employee in employees
                                let status = MetadataFor(employee).Value<TemporalStatus>(TemporalMetadata.RavenDocumentTemporalStatus)
                                where status == TemporalStatus.Current
-                               select new {
-                                              employee.Name
-                                          };
+                               select new
+                                      {
+                                          employee.Name
+                                      };
         }
     }
 }

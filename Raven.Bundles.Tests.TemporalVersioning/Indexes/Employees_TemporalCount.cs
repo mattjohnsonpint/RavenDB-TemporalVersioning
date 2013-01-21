@@ -34,10 +34,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
                                           let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalMetadata.RavenDocumentTemporalEffectiveStart)
                                           let deleted = MetadataFor(employee).Value<bool>(TemporalMetadata.RavenDocumentTemporalDeleted)
                                           where status == TemporalStatus.Revision && deleted == false
-                                          select new {
-                                                         Effective = effective,
-                                                         Count = 1
-                                                     });
+                                          select new
+                                                 {
+                                                     Effective = effective,
+                                                     Count = 1
+                                                 });
 
             // Map a -1 on each Until date
             AddMap<Employee>(employees => from employee in employees
@@ -45,10 +46,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
                                           let effective = MetadataFor(employee).Value<DateTimeOffset>(TemporalMetadata.RavenDocumentTemporalEffectiveUntil)
                                           let deleted = MetadataFor(employee).Value<bool>(TemporalMetadata.RavenDocumentTemporalDeleted)
                                           where status == TemporalStatus.Revision && deleted == false
-                                          select new {
-                                                         Effective = effective,
-                                                         Count = -1
-                                                     });
+                                          select new
+                                                 {
+                                                     Effective = effective,
+                                                     Count = -1
+                                                 });
 
             // Reduce by date, consolidating the deltas for each date and throwing out the zeros.
             Reduce = results => from result in results
@@ -56,10 +58,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
                                 into g
                                 let count = g.Sum(x => x.Count)
                                 where count != 0
-                                select new {
-                                               Effective = g.Key,
-                                               Count = count
-                                           };
+                                select new
+                                       {
+                                           Effective = g.Key,
+                                           Count = count
+                                       };
 
             // Transform the count such that each date includes all of the counts before it.
             // The .ToList(), group/ungroup, and Convert.ToInt32() are hacks to get Raven to cooperate.
@@ -67,10 +70,11 @@ namespace Raven.Bundles.Tests.TemporalVersioning.Indexes
                                                       group result by 0
                                                       into g
                                                       from z in g
-                                                      select new {
-                                                                     z.Effective,
-                                                                     Count = g.Where(x => x.Effective <= z.Effective).Sum(x => Convert.ToInt32(x.Count))
-                                                                 };
+                                                      select new
+                                                             {
+                                                                 z.Effective,
+                                                                 Count = g.Where(x => x.Effective <= z.Effective).Sum(x => Convert.ToInt32(x.Count))
+                                                             };
 
             // TODO: Both of these work, but which is faster?
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using Raven.Abstractions.Data;
 using Raven.Bundles.TemporalVersioning;
+using Raven.Bundles.Tests.TemporalVersioning.Entities;
 using Raven.Client;
 using Raven.Client.Bundles.TemporalVersioning;
 using Raven.Client.Document;
@@ -19,11 +20,10 @@ namespace Raven.Bundles.Tests.TemporalVersioning
             documentStore.Initialize();
             documentStore.InitializeTemporalVersioning();
 
-            // Enable temporal versioning by default for the tests
             using (var session = documentStore.OpenSession())
             {
-                session.Advanced.ConfigureTemporalVersioningDefaults(true);
-
+                // Enable temporal versioning for the test entities that are temporal.
+                session.Advanced.ConfigureTemporalVersioning<Employee>(true);
                 session.SaveChanges();
             }
 
