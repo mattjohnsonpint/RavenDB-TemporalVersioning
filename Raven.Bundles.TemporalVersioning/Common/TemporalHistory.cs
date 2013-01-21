@@ -10,9 +10,11 @@ namespace Raven.Bundles.TemporalVersioning.Common
 {
     public class TemporalHistory
     {
+        public const string KeyExt = "/temporalhistory";
+
         public static string GetKeyFor(string id)
         {
-            return id + "/temporalhistory";
+            return id + KeyExt;
         }
 
         internal TemporalHistory()
