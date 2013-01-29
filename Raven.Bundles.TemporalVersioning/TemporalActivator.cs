@@ -11,6 +11,7 @@ using Raven.Database.Plugins;
 
 namespace Raven.Bundles.TemporalVersioning
 {
+    [InheritedExport(typeof(IStartupTask))]
     [ExportMetadata("Bundle", TemporalConstants.BundleName)]
     public class TemporalActivator : IStartupTask, IDisposable
     {

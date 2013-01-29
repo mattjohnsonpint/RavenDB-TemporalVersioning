@@ -10,6 +10,7 @@ using Raven.Database.Server;
 
 namespace Raven.Bundles.TemporalVersioning.Triggers
 {
+    [InheritedExport(typeof(AbstractDeleteTrigger))]
     [ExportMetadata("Bundle", TemporalConstants.BundleName)]
     public class TemporalVersioningDeleteTrigger : AbstractDeleteTrigger
     {

@@ -9,6 +9,7 @@ using Raven.Json.Linq;
 
 namespace Raven.Bundles.TemporalVersioning.Triggers
 {
+    [InheritedExport(typeof(AbstractPutTrigger))]
     [ExportMetadata("Bundle", TemporalConstants.BundleName)]
     public class TemporalVersioningPutTrigger : AbstractPutTrigger
     {
