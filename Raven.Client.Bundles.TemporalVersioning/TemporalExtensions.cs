@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Raven.Abstractions.Data;
 using Raven.Client.Bundles.TemporalVersioning.Common;
@@ -116,20 +117,23 @@ namespace Raven.Client.Bundles.TemporalVersioning
             using (var session = documentStore.OpenSession())
             {
                 var databaseDocument = session.Load<DatabaseDocument>("Raven/Databases/" + databaseName);
-                var settings = databaseDocument.Settings;
-                var activeBundles = settings.ContainsKey(Constants.ActiveBundles) ? settings[Constants.ActiveBundles] : null;
-                if (string.IsNullOrEmpty(activeBundles))
-                    activeBundles = bundleName;
-                else
-                {
-                    if (activeBundles.Split(';').Contains(bundleName, StringComparer.OrdinalIgnoreCase))
-                        return;
-                    activeBundles += ";" + bundleName;
-                }
-                settings[Constants.ActiveBundles] = activeBundles;
+                databaseDocument.Settings.AddBundle(bundleName);
 
                 session.SaveChanges();
             }
+        }
+
+        private static void AddBundle(this IDictionary<string, string> settings, string bundleName)
+        {
+            var activeBundles = settings.ContainsKey(Constants.ActiveBundles) ? settings[Constants.ActiveBundles] : null;
+            if (string.IsNullOrEmpty(activeBundles))
+            {
+                settings[Constants.ActiveBundles] = bundleName;
+                return;
+            }
+
+            if (!activeBundles.Split(';').Contains(bundleName, StringComparer.OrdinalIgnoreCase))
+                settings[Constants.ActiveBundles] = activeBundles + ";" + bundleName;
         }
 
         public static IDocumentStore InitializeTemporalVersioning(this IDocumentStore documentStore)
