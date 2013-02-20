@@ -38,7 +38,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             var revisionNumber = int.Parse(newRevisionDoc.Key.Split('/').Last());
 
             // Get the history doc and add this revision
-            Guid? historyEtag;
+            Etag historyEtag;
             var history = database.GetTemporalHistoryFor(key, transactionInformation, out historyEtag);
             history.AddRevision(newRevisionDoc.Key, temporal);
 

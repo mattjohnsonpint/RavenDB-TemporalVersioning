@@ -124,7 +124,7 @@ namespace Raven.Bundles.TemporalVersioning
                     _database.SetDocumentMetadata(revisionkey, transactionInformation, TemporalMetadata.RavenDocumentTemporalPending, false);
 
                     // Mark it in the history also
-                    Guid? historyEtag;
+                    Etag historyEtag;
                     var history = _database.GetTemporalHistoryFor(currentKey, transactionInformation, out historyEtag);
                     history.Revisions.First(x => x.Key == revisionkey).Pending = false;
                     _database.SaveTemporalHistoryFor(currentKey, history, transactionInformation, historyEtag);

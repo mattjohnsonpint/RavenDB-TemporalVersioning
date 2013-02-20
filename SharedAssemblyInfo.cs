@@ -5,5 +5,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("RavenDB Temporal Versioning Bundle")]
 [assembly: AssemblyCopyright("Copyright © 2012-2013 Matt Johnson")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("2.0.8.1")]
-[assembly: AssemblyFileVersion("2.0.8.1")]
+[assembly: AssemblyVersion("2.5.0.0")]
+[assembly: AssemblyFileVersion("2.5.0.0")]
+[assembly: AssemblyInformationalVersion("2.5.0-Unstable")]

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq.Expressions;
+using Raven.Abstractions.Data;
 using Raven.Client.Bundles.TemporalVersioning.Common;
 using Raven.Client.Document;
 using Raven.Client.Indexes;
@@ -93,13 +94,13 @@ namespace Raven.Client.Bundles.TemporalVersioning
 
         #region Store
 
-        public void Store(object entity, Guid etag)
+        public void Store(object entity, Etag etag)
         {
             _session.Store(entity, etag);
             PrepareNewRevision(entity);
         }
 
-        public void Store(object entity, Guid etag, string id)
+        public void Store(object entity, Etag etag, string id)
         {
             _session.Store(entity, etag, id);
             PrepareNewRevision(entity);

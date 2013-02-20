@@ -65,7 +65,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 return ReadVetoResult.Allowed;
 
             // Load the history doc
-            Guid? historyEtag;
+            Etag historyEtag;
             var history = Database.GetTemporalHistoryFor(key, transactionInformation, out historyEtag);
 
             // Find the revision that is effective at the date requested

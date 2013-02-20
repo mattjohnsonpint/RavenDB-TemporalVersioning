@@ -97,7 +97,7 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
             }
         }
 
-        public override void AfterPut(string key, RavenJObject document, RavenJObject metadata, Guid etag, TransactionInformation transactionInformation)
+        public override void AfterPut(string key, RavenJObject document, RavenJObject metadata, Etag etag, TransactionInformation transactionInformation)
         {
             if (key == null)
                 return;

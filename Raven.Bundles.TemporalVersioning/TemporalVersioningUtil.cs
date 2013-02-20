@@ -33,7 +33,7 @@ namespace Raven.Bundles.TemporalVersioning
         }
 
         public static TemporalHistory GetTemporalHistoryFor(this DocumentDatabase database, string key, TransactionInformation transactionInformation,
-                                                            out Guid? etag)
+                                                            out Etag etag)
         {
             using (database.DisableAllTriggersForCurrentThread())
             {
@@ -50,7 +50,7 @@ namespace Raven.Bundles.TemporalVersioning
         }
 
         public static void SaveTemporalHistoryFor(this DocumentDatabase database, string key, TemporalHistory history,
-                                                  TransactionInformation transactionInformation, Guid? etag)
+                                                  TransactionInformation transactionInformation, Etag etag)
         {
             using (database.DisableAllTriggersForCurrentThread())
             {
@@ -107,7 +107,7 @@ namespace Raven.Bundles.TemporalVersioning
             database.PutDocumentMetadata(key, metadata);
         }
 
-        public static void WaitForIndexToBecomeNonStale(this DocumentDatabase database, string name, DateTime? cutOff, Guid? cutoffEtag)
+        public static void WaitForIndexToBecomeNonStale(this DocumentDatabase database, string name, DateTime? cutOff, Etag cutoffEtag)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
