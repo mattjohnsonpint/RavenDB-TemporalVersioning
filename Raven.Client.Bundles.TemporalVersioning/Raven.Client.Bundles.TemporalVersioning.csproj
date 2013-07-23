@@ -23,6 +23,7 @@
     <DefineConstants>TRACE;DEBUG;CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Raven.Client.Bundles.TemporalVersioning.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE;CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Raven.Client.Bundles.TemporalVersioning.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Raven.Abstractions">
