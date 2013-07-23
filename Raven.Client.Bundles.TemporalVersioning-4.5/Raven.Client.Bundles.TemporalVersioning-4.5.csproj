@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A80D0B4D-CFBC-42B7-980F-3D6090CE582F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Raven.Client.Bundles.TemporalVersioning</RootNamespace>
+    <AssemblyName>Raven.Client.Bundles.TemporalVersioning-4.5</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;CLIENT</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Raven.Client.Bundles.TemporalVersioning-4.5.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;CLIENT</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Raven.Client.Bundles.TemporalVersioning-4.5.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CompilerServices.AsyncTargetingPack.Net45">
+      <HintPath>..\packages\Microsoft.CompilerServices.AsyncTargetingPack.1.0.0\lib\net45\Microsoft.CompilerServices.AsyncTargetingPack.Net45.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Abstractions">
+      <HintPath>..\packages\RavenDB.Client.2.5.2504-Unstable\lib\net40\Raven.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight">
+      <HintPath>..\packages\RavenDB.Client.2.5.2504-Unstable\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalConstants.cs">
+      <Link>Common\TemporalConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalExtensions.cs">
+      <Link>Common\TemporalExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalHistory.cs">
+      <Link>Common\TemporalHistory.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalMetadata.cs">
+      <Link>Common\TemporalMetadata.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalStatus.cs">
+      <Link>Common\TemporalStatus.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.TemporalVersioning\Common\TemporalVersioningConfiguration.cs">
+      <Link>Common\TemporalVersioningConfiguration.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Client.Bundles.TemporalVersioning\ISyncTemporalSessionOperation.cs">
+      <Link>ISyncTemporalSessionOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Client.Bundles.TemporalVersioning\ITemporalLoaderWithInclude.cs">
+      <Link>ITemporalLoaderWithInclude.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Client.Bundles.TemporalVersioning\TemporalExtensions.cs">
+      <Link>TemporalExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Client.Bundles.TemporalVersioning\TemporalMultiLoaderWithInclude.cs">
+      <Link>TemporalMultiLoaderWithInclude.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Client.Bundles.TemporalVersioning\TemporalSessionOperation.cs">
+      <Link>TemporalSessionOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Client.Bundles.TemporalVersioning\TemporalVersioningListener.cs">
+      <Link>TemporalVersioningListener.cs</Link>
+    </Compile>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
