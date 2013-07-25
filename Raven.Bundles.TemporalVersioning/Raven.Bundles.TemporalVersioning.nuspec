@@ -16,4 +16,8 @@
     </dependencies>
     <iconUrl>http://static.ravendb.net/logo-for-nuget.png</iconUrl>
   </metadata>
+  <files>
+    <file src="bin\debug\Raven.Bundles.TemporalVersioning.pdb" target="lib\net40"/>
+    <file src="..\Raven.Bundles.TemporalVersioning-4.5\bin\Debug\Raven.Bundles.TemporalVersioning-4.5.*" target="lib\net45"/>
+  </files>
 </package>

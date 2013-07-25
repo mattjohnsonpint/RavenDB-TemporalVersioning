@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F0632043-EA4E-43E0-858B-50BEE7AF3A2D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Raven.Bundles.Tests.TemporalVersioning.Net45</RootNamespace>
+    <AssemblyName>Raven.Bundles.Tests.TemporalVersioning.Net45</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Raven.Abstractions-4.5">
+      <HintPath>..\packages\RavenDB.Client.2.5.2666\lib\net45\Raven.Abstractions-4.5.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Embedded-4.5">
+      <HintPath>..\packages\RavenDB.Embedded.2.5.2666\lib\net45\Raven.Client.Embedded-4.5.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight-4.5">
+      <HintPath>..\packages\RavenDB.Client.2.5.2666\lib\net45\Raven.Client.Lightweight-4.5.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Database-4.5">
+      <HintPath>..\packages\RavenDB.Database.2.5.2666\lib\net45\Raven.Database-4.5.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Server-4.5">
+      <HintPath>..\packages\RavenDB.Tests.Helpers.2.5.2666\lib\net45\Raven.Server-4.5.exe</HintPath>
+    </Reference>
+    <Reference Include="Raven.Tests.Helpers-4.5">
+      <HintPath>..\packages\RavenDB.Tests.Helpers.2.5.2666\lib\net45\Raven.Tests.Helpers-4.5.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit">
+      <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\CurrentMapReduceQueryTests.cs">
+      <Link>CurrentMapReduceQueryTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\DeletionTests.cs">
+      <Link>DeletionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\DynamicQueryTests.cs">
+      <Link>DynamicQueryTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Entities\Department.cs">
+      <Link>Entities\Department.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Entities\Division.cs">
+      <Link>Entities\Division.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Entities\Employee.cs">
+      <Link>Entities\Employee.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Entities\PayCheck.cs">
+      <Link>Entities\PayCheck.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\HttpTests.cs">
+      <Link>HttpTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\CurrentEmployees_ByHiringManager.cs">
+      <Link>Indexes\CurrentEmployees_ByHiringManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Departments_ByDivision.cs">
+      <Link>Indexes\Departments_ByDivision.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Departments_BySupervisor.cs">
+      <Link>Indexes\Departments_BySupervisor.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_ByDepartment.cs">
+      <Link>Indexes\Employees_ByDepartment.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_ByHiringManager.cs">
+      <Link>Indexes\Employees_ByHiringManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_ByManager.cs">
+      <Link>Indexes\Employees_ByManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_ByManagersCurrentName.cs">
+      <Link>Indexes\Employees_ByManagersCurrentName.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_ByName.cs">
+      <Link>Indexes\Employees_ByName.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_CurrentByDepartment.cs">
+      <Link>Indexes\Employees_CurrentByDepartment.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_CurrentByManager.cs">
+      <Link>Indexes\Employees_CurrentByManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_CurrentByName.cs">
+      <Link>Indexes\Employees_CurrentByName.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_CurrentCount.cs">
+      <Link>Indexes\Employees_CurrentCount.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_RevisionsByName.cs">
+      <Link>Indexes\Employees_RevisionsByName.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\Employees_TemporalCount.cs">
+      <Link>Indexes\Employees_TemporalCount.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Indexes\PayChecks_ByEmployee.cs">
+      <Link>Indexes\PayChecks_ByEmployee.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\MigrationTests.cs">
+      <Link>MigrationTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\MultitenantTests.cs">
+      <Link>MultitenantTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\NonCurrentLoadTests.cs">
+      <Link>NonCurrentLoadTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Projections\DepartmentWithDivision.cs">
+      <Link>Projections\DepartmentWithDivision.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Projections\DepartmentWithSupervisor.cs">
+      <Link>Projections\DepartmentWithSupervisor.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Projections\EmployeeWithDepartment.cs">
+      <Link>Projections\EmployeeWithDepartment.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Projections\EmployeeWithManager.cs">
+      <Link>Projections\EmployeeWithManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Projections\EmployeeWithManager_OverRange.cs">
+      <Link>Projections\EmployeeWithManager_OverRange.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Projections\PayCheckWithEmployeeInfo.cs">
+      <Link>Projections\PayCheckWithEmployeeInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Nt_Nt.cs">
+      <Link>RelationshipTests\Relationship_Nt_Nt.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Nt_Tc.cs">
+      <Link>RelationshipTests\Relationship_Nt_Tc.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Nt_Tx.cs">
+      <Link>RelationshipTests\Relationship_Nt_Tx.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Tc_Nt.cs">
+      <Link>RelationshipTests\Relationship_Tc_Nt.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Tc_Tc.cs">
+      <Link>RelationshipTests\Relationship_Tc_Tc.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Tc_Tx.cs">
+      <Link>RelationshipTests\Relationship_Tc_Tx.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Tr_Nt.cs">
+      <Link>RelationshipTests\Relationship_Tr_Nt.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Tr_Tc.cs">
+      <Link>RelationshipTests\Relationship_Tr_Tc.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Tr_Tr.cs">
+      <Link>RelationshipTests\Relationship_Tr_Tr.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\RelationshipTests\Relationship_Tr_Tx.cs">
+      <Link>RelationshipTests\Relationship_Tr_Tx.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\SimpleTests.cs">
+      <Link>SimpleTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\StaticQueryTests.cs">
+      <Link>StaticQueryTests.cs</Link>
+    </Compile>
+    <Compile Include="..\Raven.Bundles.Tests.TemporalVersioning\TemporalMapReduceQueryTests.cs">
+      <Link>TemporalMapReduceQueryTests.cs</Link>
+    </Compile>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Raven.Bundles.TemporalVersioning-4.5\Raven.Bundles.TemporalVersioning-4.5.csproj">
+      <Project>{c9ad8c5c-0ff9-43ba-b7f5-4f5a62d41717}</Project>
+      <Name>Raven.Bundles.TemporalVersioning-4.5</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Raven.Client.Bundles.TemporalVersioning-4.5\Raven.Client.Bundles.TemporalVersioning-4.5.csproj">
+      <Project>{a80d0b4d-cfbc-42b7-980f-3d6090ce582f}</Project>
+      <Name>Raven.Client.Bundles.TemporalVersioning-4.5</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
