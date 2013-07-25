@@ -115,7 +115,7 @@ namespace Raven.Bundles.TemporalVersioning
                     _log.Info("Activating Temporal Document {0}", revisionkey);
 
                     // Establish a new transaction
-                    var transactionInformation = new TransactionInformation { Id = Guid.NewGuid(), Timeout = TimeSpan.FromMinutes(1) };
+                    var transactionInformation = new TransactionInformation { Id = Guid.NewGuid().ToString(), Timeout = TimeSpan.FromMinutes(1) };
 
                     // Get the current key from the revision key
                     var currentKey = revisionkey.Substring(0, revisionkey.IndexOf(TemporalConstants.TemporalKeySeparator, StringComparison.Ordinal));
