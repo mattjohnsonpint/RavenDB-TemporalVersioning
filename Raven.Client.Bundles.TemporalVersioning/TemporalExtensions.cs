@@ -88,6 +88,14 @@ namespace Raven.Client.Bundles.TemporalVersioning
             return new TemporalSessionOperation(session, effective);
         }
 
+        public static ISyncTemporalSessionOperation Effective(this IDocumentSession session, DateTime effective)
+        {
+            if (effective.Kind != DateTimeKind.Utc)
+                throw new ArgumentException("An effective date must be either a UTC DateTime, or a DateTimeOffset.  Passing a DateTime with Local or Unspecified kind is not permitted.");
+
+            return new TemporalSessionOperation(session, effective);
+        }
+
         public static IDocumentQueryCustomization DisableTemporalFiltering(this IDocumentQueryCustomization customization)
         {
             // this gets stripped out later by the listener
