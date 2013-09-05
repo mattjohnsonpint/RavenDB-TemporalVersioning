@@ -22,7 +22,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning.RelationshipTests
 
                 using (var session = documentStore.OpenSession())
                 {
-                    var effectiveDate1 = new DateTime(2012, 1, 1);
+                    var effectiveDate1 = new DateTime(2012, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                     session.Effective(effectiveDate1).Store(new Employee { Id = "employees/1", Name = "Alice Anderson", PayRate=10 });
                     session.Effective(effectiveDate1).Store(new Employee { Id = "employees/2", Name = "Bob Barker", PayRate=10 });
 
@@ -32,7 +32,7 @@ namespace Raven.Bundles.Tests.TemporalVersioning.RelationshipTests
                 using (var session = documentStore.OpenSession())
                 {
                     // Alice changed her last name on Feb 1, 2012
-                    var effectiveDate2 = new DateTime(2012, 2, 1);
+                    var effectiveDate2 = new DateTime(2012, 2, 1, 0, 0, 0, DateTimeKind.Utc);
                     var employee1 = session.Effective(effectiveDate2).Load<Employee>("employees/1");
                     employee1.Name = "Alice Cooper";
 

@@ -20,8 +20,8 @@ namespace Raven.Bundles.Tests.TemporalVersioning.RelationshipTests
             {
                 documentStore.ExecuteIndex(new CurrentEmployees_ByHiringManager());
 
-                var effectiveDate1 = new DateTime(2012, 1, 1);
-                var effectiveDate2 = new DateTime(2012, 2, 1);
+                var effectiveDate1 = new DateTime(2012, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var effectiveDate2 = new DateTime(2012, 2, 1, 0, 0, 0, DateTimeKind.Utc);
 
                 using (var session = documentStore.OpenSession())
                 {
