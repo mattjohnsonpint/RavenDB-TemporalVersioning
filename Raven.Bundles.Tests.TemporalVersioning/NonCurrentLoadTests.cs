@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting;
 using Raven.Bundles.Tests.TemporalVersioning.Entities;
 using Raven.Client.Bundles.TemporalVersioning;
 using Raven.Client.Bundles.TemporalVersioning.Common;
@@ -85,16 +86,30 @@ namespace Raven.Bundles.Tests.TemporalVersioning
                     session.SaveChanges();
                 }
 
+                // Check the current results first
+                using (var session = documentStore.OpenSession())
+                {
+                    var employee = session.Load<Employee>(id);
+                    var temporal = session.Advanced.GetTemporalMetadataFor(employee);
+                    Assert.Equal(TemporalStatus.Current, temporal.Status);
+                    Assert.Equal(2, temporal.RevisionNumber);
+                    Assert.Equal(effectiveDate2, temporal.EffectiveStart);
+                    Assert.Equal(effectiveDate3, temporal.EffectiveUntil);
+                    Assert.Equal(id, employee.Id);
+                    Assert.Equal(20, employee.PayRate);
+                }
+
                 // Check the results at the end
                 using (var session = documentStore.OpenSession())
                 {
                     var employee = session.Effective(effectiveDate3).Load<Employee>(id);
-                    Assert.Equal(id, employee.Id);
-                    Assert.Equal(30, employee.PayRate);
-
                     var temporal = session.Advanced.GetTemporalMetadataFor(employee);
                     Assert.Equal(TemporalStatus.Revision, temporal.Status);
+                    Assert.Equal(effectiveDate3, temporal.EffectiveStart);
+                    Assert.Equal(DateTimeOffset.MaxValue, temporal.EffectiveUntil);
                     Assert.Equal(3, temporal.RevisionNumber);
+                    Assert.Equal(id, employee.Id);
+                    Assert.Equal(30, employee.PayRate);
                 }
             }
         }
