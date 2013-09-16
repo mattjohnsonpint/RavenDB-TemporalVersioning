@@ -78,11 +78,21 @@ namespace Raven.Bundles.TemporalVersioning.Triggers
                 if (!current)
                 {
                     // When it's not current, then fetch the current one so we can put it back later.
-                    // (This would not be necessary if Raven supported "instead of" triggers.)
                     _originalDocument.Value = Database.Get(key, transactionInformation);
 
                     // If this is the first revision and it's not current, then we don't want to keep a current doc at all.
                     _clearCurrent.Value = _originalDocument.Value == null;
+
+                    // If this is a future version, then the current doc might need to be updated
+                    if (_originalDocument.Value != null)
+                    {
+                        var originalMetadata = _originalDocument.Value.Metadata.GetTemporalMetadata();
+                        if (originalMetadata.EffectiveUntil > temporal.EffectiveStart)
+                        {
+                            originalMetadata.EffectiveUntil = temporal.EffectiveStart;
+                            originalMetadata.AssertedUntil = _now.Value;
+                        }
+                    }
                 }
 
                 // Always store this new data as a revision document
